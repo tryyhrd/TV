@@ -5,8 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TV"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        WindowStyle="None"
+        WindowState="Maximized"
+        Topmost="True"
+        Background="Black"
+        Title="MainWindow">
     <Grid>
-        
+        <MediaElement Name="mediaPlayer"
+                      LoadedBehavior="Manual"
+                      UnloadedBehavior="Stop"/>
     </Grid>
 </Window>
