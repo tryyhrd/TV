@@ -10,18 +10,29 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace TV.Windows
+namespace TV.Pages
 {
     /// <summary>
-    /// Логика взаимодействия для MainSettings.xaml
+    /// Логика взаимодействия для Schedule.xaml
     /// </summary>
-    public partial class MainSettings : Window
+    public partial class Schedule : Page
     {
-        public MainSettings()
+        public Schedule()
         {
             InitializeComponent();
+        }
+
+        private void AddSchedule(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void DeleteSchedule(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

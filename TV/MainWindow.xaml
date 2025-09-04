@@ -5,14 +5,44 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TV"
         mc:Ignorable="d"
-        WindowStyle="None"
-        WindowState="Maximized"
-        Topmost="True"
-        Background="Black"
-        Title="MainWindow">
+        Background="White"
+        Title="MainWindow"
+        Height="450"
+        Width="800">
     <Grid>
-        <MediaElement Name="mediaPlayer"
-                      LoadedBehavior="Manual"
-                      UnloadedBehavior="Stop"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0" Background="#FF2D2D30" Height="40">
+            <TextBlock Text="Digital Signage Manager" 
+                    Foreground="White" FontSize="14" FontWeight="Bold"
+                    VerticalAlignment="Center" Margin="15,0"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="10,0">
+                <Button Content="📺 Дисплеи"  
+                     Click="NavigateToDisplays" Tag="DisplaysPage"/>
+                <Button Content="🎵 Медиатека" 
+                     Click="NavigateToMedia" Tag="MediaPage" Margin="5,0"/>
+                <Button Content="⏰ Расписания" 
+                     Click="NavigateToSchedules" Tag="SchedulesPage" Margin="5,0"/>
+                <Button Content="⚙️ Настройки" 
+                     Click="NavigateToSettings" Tag="SettingsPage" Margin="5,0"/>
+            </StackPanel>
+        </DockPanel>
+
+        <Frame x:Name="mainFrame" Grid.Row="1" NavigationUIVisibility="Hidden"/>
+
+        <StatusBar Grid.Row="2" Background="#FFE0E0E0">
+            <StatusBarItem>
+                <TextBlock x:Name="statusText" Text="Готов к работе"/>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right">
+                <TextBlock Text="{Binding ActiveDisplaysCount, StringFormat='Активных дисплеев: {0}'}" 
+                        Margin="0,0,10,0"/>
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 </Window>
