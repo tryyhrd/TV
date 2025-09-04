@@ -11,33 +11,104 @@
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
+        <!-- Control Buttons -->
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
             <Button Content="🔄 Обнаружить дисплеи" Click="DetectDisplays"/>
             <Button Content="▶️ Запустить все" Click="StartAll" Margin="5,0"/>
             <Button Content="⏹️ Остановить все" Click="StopAll" Margin="5,0"/>
         </StackPanel>
 
-        <DataGrid Grid.Row="1" x:Name="displaysGrid" AutoGenerateColumns="False" IsReadOnly="True">
+        <!-- Content Selection Panel -->
+        <Border Grid.Row="1" Background="#FFF0F0F0" Margin="0,0,0,10" 
+            Padding="10" CornerRadius="3" BorderBrush="#FFCCCCCC" BorderThickness="1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Тип контента:" VerticalAlignment="Center" Margin="0,0,10,0" Grid.Row="0"/>
+
+                <ComboBox Grid.Column="1" Grid.Row="0" x:Name="contentTypeCombo" 
+                     VerticalAlignment="Center" SelectionChanged="ContentType_Changed">
+                    <ComboBoxItem Content="Плейлист"/>
+                    <ComboBoxItem Content="Медиафайл"/>
+                    <ComboBoxItem Content="Веб-страница"/>
+                </ComboBox>
+
+                <!-- Playlist Selector -->
+                <StackPanel Grid.Column="2" Grid.Row="0" x:Name="playlistPanel" Orientation="Horizontal" 
+                       VerticalAlignment="Center" Margin="10,0">
+                    <TextBlock Text="Плейлист:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <ComboBox x:Name="playlistCombo" DisplayMemberPath="Name" Width="200"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Grid.Row="0" x:Name="mediaFilePanel" Orientation="Horizontal" 
+                       VerticalAlignment="Center" Margin="10,0" Visibility="Collapsed">
+                    <TextBlock Text="Файл:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <TextBox x:Name="mediaFilePath" Width="180" VerticalAlignment="Center"
+                        ToolTip="Путь к медиафайлу"/>
+                    <Button Content="..." Click="BrowseMediaFile" Width="25" Margin="5,0"
+                       ToolTip="Выбрать файл"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Grid.Row="0" x:Name="webUrlPanel" Orientation="Horizontal" 
+                       VerticalAlignment="Center" Margin="10,0" Visibility="Collapsed">
+                    <TextBlock Text="URL:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <TextBox x:Name="webUrlTextBox" Text="https://" Width="200"
+                        ToolTip="URL веб-страницы"/>
+                </StackPanel>
+
+                <Button Grid.Column="3" Grid.Row="0" Content="Применить к выбранным" Click="ApplyContentToSelected" 
+                   Width="150" Margin="10,0" VerticalAlignment="Center"/>
+
+                <TextBlock Grid.Column="2" Grid.Row="1" Grid.ColumnSpan="2" x:Name="selectionInfo" 
+                      Text="Выберите дисплеи в таблице ниже" Margin="10,5,0,0" FontStyle="Italic"/>
+            </Grid>
+        </Border>
+
+        <DataGrid Grid.Row="2" x:Name="displaysGrid" AutoGenerateColumns="False" IsReadOnly="True"
+             SelectionMode="Extended">
 
             <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Выбор" Width="60">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding IsSelected}" HorizontalAlignment="Center"
+                                 ToolTip="Выбрать для применения контента"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
                 <DataGridTextColumn Header="Дисплей" Binding="{Binding Name}" Width="100"/>
                 <DataGridTextColumn Header="Разрешение" Binding="{Binding Resolution}" Width="100"/>
                 <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="80"/>
-                <DataGridTextColumn Header="Плейлист" Binding="{Binding PlaylistName}" Width="150"/>
+                <DataGridTextColumn Header="Текущий контент" Binding="{Binding CurrentContent}" Width="200"/>
+                <DataGridTextColumn Header="Тип" Binding="{Binding ContentType}" Width="80"/>
+
                 <DataGridTemplateColumn Header="Действия" Width="200">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
                                 <Button Content="▶" Click="StartDisplay" Tag="{Binding Id}" 
-                                    Width="30" ToolTip="Запустить"/>
+                                Width="30" ToolTip="Запустить" Margin="1"/>
                                 <Button Content="⏹" Click="StopDisplay" Tag="{Binding Id}" 
-                                    Width="30" Margin="2,0" ToolTip="Остановить"/>
+                                Width="30" ToolTip="Остановить" Margin="1"/>
                                 <Button Content="⚙" Click="ConfigureDisplay" Tag="{Binding Id}" 
-                                    Width="30" Margin="2,0" ToolTip="Настроить"/>
+                                Width="30" ToolTip="Настроить" Margin="1"/>
+                                <Button Content="👁" Click="PreviewDisplay" Tag="{Binding Id}" 
+                                Width="30" ToolTip="Предпросмотр" Margin="1"/>
                             </StackPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
@@ -46,31 +117,48 @@
 
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Запустить плейлист" Click="StartPlaylistOnDisplay">
-                        <MenuItem.Icon>
-                            <Image  Width="16" Height="16"/>
-                        </MenuItem.Icon>
-                    </MenuItem>
-                    <MenuItem Header="Запустить медиафайл" Click="StartMediaOnDisplay">
-                        <MenuItem.Icon>
-                            <Image  Width="16" Height="16"/>
-                        </MenuItem.Icon>
-                    </MenuItem>
+                    <MenuItem Header="Выбрать все" Click="SelectAllDisplays"/>
+                    <MenuItem Header="Снять выделение" Click="DeselectAllDisplays"/>
                     <Separator/>
-                    <MenuItem Header="Остановить воспроизведение" Click="StopDisplayPlayback">
+
+                    <MenuItem Header="Запустить плейлист на выбранных" Click="StartPlaylistOnSelected">
                         <MenuItem.Icon>
-                            <Image  Width="16" Height="16"/>
+                            <Image Width="16" Height="16"/>
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="Настройки дисплея" Click="ConfigureDisplay">
+
+                    <MenuItem Header="Запустить медиафайл на выбранных" Click="StartMediaOnSelected">
                         <MenuItem.Icon>
-                            <Image  Width="16" Height="16"/>
+                            <Image Width="16" Height="16"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+
+                    <MenuItem Header="Запустить веб-страницу на выбранных" Click="StartWebOnSelected">
+                        <MenuItem.Icon>
+                            <Image Width="16" Height="16"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+
+                    <Separator/>
+                    <MenuItem Header="Остановить выбранные" Click="StopSelectedDisplays">
+                        <MenuItem.Icon>
+                            <Image Width="16" Height="16"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+
+                    <MenuItem Header="Настройки выбранных" Click="ConfigureSelectedDisplays">
+                        <MenuItem.Icon>
+                            <Image Width="16" Height="16"/>
                         </MenuItem.Icon>
                     </MenuItem>
                 </ContextMenu>
             </DataGrid.ContextMenu>
         </DataGrid>
 
-        <TextBlock Grid.Row="2" x:Name="displaysStatus" Margin="0,10,0,0"/>
+        <!-- Status and Info -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,10,0,0">
+            <TextBlock x:Name="selectedDisplaysCount" Text="Выбрано: 0" Margin="0,0,20,0"/>
+            <TextBlock x:Name="displaysStatus" Text="Готово"/>
+        </StackPanel>
     </Grid>
 </Page>

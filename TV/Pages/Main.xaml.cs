@@ -74,5 +74,60 @@ namespace TV.Pages
         {
 
         }
+
+        private void ContentType_Changed(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        private void BrowseMediaFile(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void ApplyContentToSelected(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void PreviewDisplay(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void SelectAllDisplays(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void DeselectAllDisplays(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void StartPlaylistOnSelected(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void StartMediaOnSelected(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void StartWebOnSelected(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void StopSelectedDisplays(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void ConfigureSelectedDisplays(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
