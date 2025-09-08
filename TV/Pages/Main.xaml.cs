@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Windows.Forms;
+using TV.Classes;
 
 namespace TV.Pages
 {
@@ -20,14 +14,33 @@ namespace TV.Pages
     /// </summary>
     public partial class Main : Page
     {
+        private ObservableCollection<Display> displays = new ObservableCollection<Display>();
         public Main()
         {
             InitializeComponent();
+
+            contentTypeCombo.SelectedIndex = 1;
         }
 
         private void DetectDisplays(object sender, RoutedEventArgs e)
         {
+            var screens = Screen.AllScreens;
 
+            for (int i = 0; i < screens.Length; i++)
+            {
+                var display = new Display
+                {
+                    Id = i,
+                    Name = screens[i].DeviceName,
+                    Resolution = $"{screens[i].Bounds.Width}x{screens[i].Bounds.Height}",
+                    Screen = screens[i],
+                    Status = "Обнаружен"
+                };
+
+                displays.Add(display);
+            }
+
+            displaysGrid.ItemsSource = displays;
         }
 
         private void TestAllDisplays(object sender, RoutedEventArgs e)
@@ -77,17 +90,84 @@ namespace TV.Pages
 
         private void ContentType_Changed(object sender, SelectionChangedEventArgs e)
         {
+            if (contentTypeCombo.SelectedItem == null) return;
 
+            var selectedType = (contentTypeCombo.SelectedItem as ComboBoxItem)?.Content.ToString();
+
+            playlistPanel.Visibility = Visibility.Collapsed;
+            mediaFilePanel.Visibility = Visibility.Collapsed;
+            webUrlPanel.Visibility = Visibility.Collapsed;
+
+            switch (selectedType)
+            {
+                case "Плейлист":
+                    playlistPanel.Visibility = Visibility.Visible;
+                    selectionInfo.Text = "Выберите плейлист и дисплеи для применения";
+                    break;
+
+                case "Медиафайл":
+                    mediaFilePanel.Visibility = Visibility.Visible;
+                    selectionInfo.Text = "Выберите файл и дисплеи для применения";
+                    break;
+
+                case "Веб-страница":
+                    webUrlPanel.Visibility = Visibility.Visible;
+                    selectionInfo.Text = "Введите URL и выберите дисплеи для применения";
+                    break;
+            }
         }
 
         private void BrowseMediaFile(object sender, RoutedEventArgs e)
         {
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "Видео файлы|*.mp4;*.avi;*.mov;*.wmv;*.mkv|" +
+                     "Изображения|*.jpg;*.png;*.bmp;*.gif|" +
+                     "Все файлы|*.*",
+                Title = "Выберите медиафайл"
+            };
 
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                mediaFilePath.Text = openFileDialog.FileName;
+            }
         }
 
         private void ApplyContentToSelected(object sender, RoutedEventArgs e)
         {
+            var selectedDisplays = displays.Where(d => d.IsSelected).ToList();
 
+            if (selectedDisplays.Count == 0)
+            {
+                System.Windows.MessageBox.Show("Выберите хотя бы один дисплей!");
+                return;
+            }
+
+            var contentTypeItem = contentTypeCombo.SelectedItem as ComboBoxItem;
+            string contentType = contentTypeItem?.Content.ToString();
+
+            foreach (var display in selectedDisplays)
+            {
+                switch (contentType)
+                {
+                    case "Плейлист":
+                        display.CurrentContent = playlistCombo.Text;
+                        display.ContentType = "Плейлист";
+                        break;
+
+                    case "Медиафайл":
+                        display.CurrentContent = Path.GetFileName(mediaFilePath.Text);
+                        display.ContentType = "Медиа";
+                        break;
+
+                    case "Веб-страница":
+                        display.CurrentContent = webUrlTextBox.Text;
+                        display.ContentType = "Веб";
+                        break;
+                }
+
+                display.Status = "Контент назначен";
+            }
         }
 
         private void PreviewDisplay(object sender, RoutedEventArgs e)
