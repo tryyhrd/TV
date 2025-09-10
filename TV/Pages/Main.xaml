@@ -102,8 +102,6 @@
                                 Width="30" ToolTip="Остановить" Margin="1"/>
                                 <Button Content="⚙" Click="ConfigureDisplay" Tag="{Binding Id}" 
                                 Width="30" ToolTip="Настроить" Margin="1"/>
-                                <Button Content="👁" Click="PreviewDisplay" Tag="{Binding Id}" 
-                                Width="30" ToolTip="Предпросмотр" Margin="1"/>
                             </StackPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>

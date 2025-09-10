@@ -10,6 +10,8 @@ namespace TV
         public MainWindow()
         {
             InitializeComponent();
+
+            mainFrame.Navigate(new Pages.Main());
         }
 
         private void NavigateToDisplays(object sender, RoutedEventArgs e)

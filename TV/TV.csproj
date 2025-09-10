@@ -67,6 +67,9 @@
     <Compile Include="Pages\Media.xaml.cs">
       <DependentUpon>Media.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\ContentToDisplay.xaml.cs">
+      <DependentUpon>ContentToDisplay.xaml</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -96,6 +99,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Resources\Dictionary.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\ContentToDisplay.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

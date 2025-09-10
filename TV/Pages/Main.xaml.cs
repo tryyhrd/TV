@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -55,7 +57,7 @@ namespace TV.Pages
 
         private void StopAll(object sender, RoutedEventArgs e)
         {
-
+            
         }
 
         private void StartDisplay(object sender, RoutedEventArgs e)
@@ -156,7 +158,7 @@ namespace TV.Pages
                         break;
 
                     case "Медиафайл":
-                        display.CurrentContent = Path.GetFileName(mediaFilePath.Text);
+                        display.CurrentContent = mediaFilePath.Text;
                         display.ContentType = "Медиа";
                         break;
 
@@ -167,7 +169,57 @@ namespace TV.Pages
                 }
 
                 display.Status = "Контент назначен";
+
+                Windows.ContentToDisplay contentToDisplay = new Windows.ContentToDisplay(display);
+                PositionWindowOnDisplay(contentToDisplay, display);
+                contentToDisplay.Show();
             }
+        }
+
+        private void PositionWindowOnDisplay(Window window, Display display)
+        {
+            var screens = Screen.AllScreens;
+
+            if (display.Id >= 0 && display.Id < screens.Length)
+            {
+                var targetScreen = screens[display.Id];
+                SetWindowToScreen(window, targetScreen);
+            }
+            else if (!string.IsNullOrEmpty(display.Name))
+            {
+                var targetScreen = screens.FirstOrDefault(s =>
+                    s.DeviceName.Equals(display.Name, StringComparison.OrdinalIgnoreCase));
+
+                if (targetScreen != null)
+                {
+                    SetWindowToScreen(window, targetScreen);
+                }
+                else
+                {
+                    SetWindowToScreen(window, Screen.PrimaryScreen);
+                }
+            }
+            else
+            {
+                SetWindowToScreen(window, Screen.PrimaryScreen);
+            }
+        }
+
+        private void SetWindowToScreen(Window window, Screen screen)
+        {
+            window.WindowStartupLocation = WindowStartupLocation.Manual;
+
+            Rectangle workingArea = screen.WorkingArea;
+
+            window.Left = workingArea.Left;
+            window.Top = workingArea.Top;
+            window.Width = workingArea.Width;
+            window.Height = workingArea.Height;
+
+            window.WindowStyle = WindowStyle.None;
+            window.WindowState = WindowState.Normal;
+            window.ResizeMode = ResizeMode.NoResize;
+            window.Topmost = true; 
         }
 
         private void PreviewDisplay(object sender, RoutedEventArgs e)
