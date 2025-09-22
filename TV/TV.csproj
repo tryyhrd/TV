@@ -58,6 +58,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Classes\Display.cs" />
+    <Compile Include="Classes\MainViewModel.cs" />
     <Compile Include="Pages\Displays.xaml.cs">
       <DependentUpon>Displays.xaml</DependentUpon>
     </Compile>

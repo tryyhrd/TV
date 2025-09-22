@@ -22,6 +22,7 @@ namespace TV.Classes
             {
                 _isSelected = value;
                 OnPropertyChanged(nameof(IsSelected));
+                new MainViewModel().UpdateActiveDisplaysString();
             }
         }
 
@@ -50,11 +51,6 @@ namespace TV.Classes
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private void OnSelectionChanged(bool isSelected)
-        {
-            isSelected = !isSelected;
         }
     }
 }

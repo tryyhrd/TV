@@ -8,7 +8,94 @@
       d:DesignHeight="450" d:DesignWidth="800"
       Title="Main" Background="White">
 
-    <Grid Margin="10">
+    <Grid Margin="15">
+        <Grid.Resources>
+            <Style TargetType="Button" x:Key="ModernButton">
+                <Setter Property="Background" Value="#007ACC"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Padding" Value="12,6"/>
+                <Setter Property="Margin" Value="0,0,8,0"/>
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="Cursor" Value="Hand"/>
+            </Style>
+
+            <Style TargetType="Border" x:Key="CardStyle">
+                <Setter Property="Background" Value="#FAFAFA"/>
+                <Setter Property="BorderBrush" Value="#E0E0E0"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="6"/>
+                <Setter Property="Padding" Value="15"/>
+                <Setter Property="Margin" Value="0,0,0,12"/>
+            </Style>
+
+            <Style x:Key="IconButtonStyle" TargetType="Button">
+                <Setter Property="Width" Value="32"/>
+                <Setter Property="Height" Value="32"/>
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="border" 
+                                    Background="{TemplateBinding Background}" 
+                                    CornerRadius="4"
+                                    BorderThickness="0">
+                                        <ContentPresenter HorizontalAlignment="Center" 
+                                                  VerticalAlignment="Center"
+                                                  Margin="{TemplateBinding Padding}"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="border" Property="Opacity" Value="0.6"/>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="border" Property="Opacity" Value="0.4"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="ModernIconButton" TargetType="Button">
+                <Setter Property="Background" Value="#10B981"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="Width" Value="28"/>
+                <Setter Property="Height" Value="24"/>
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="Margin" Value="1"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="border" 
+                        Background="{TemplateBinding Background}"
+                        BorderThickness="0"
+                        CornerRadius="3">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="border" Property="Opacity" Value="0.6"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </Grid.Resources>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -16,18 +103,22 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-            <Button Content="🔄 Обнаружить дисплеи" Click="DetectDisplays"/>
-            <Button Content="▶️ Запустить все" Click="StartAll" Margin="5,0"/>
-            <Button Content="⏹️ Остановить все" Click="StopAll"/>
-        </StackPanel>
+        <Border Grid.Row="0" Style="{StaticResource CardStyle}">
+            <StackPanel Orientation="Horizontal">
+                <Button Content="🔄 Обнаружить дисплеи" Click="DetectDisplays" 
+        Style="{StaticResource ModernButton}" Background="#374151"/>
+                <Button Content="▶️ Запустить все" Click="StartAll" 
+        Style="{StaticResource ModernButton}" Background="#065F46"/>
+                <Button Content="⏹️ Остановить все" Click="StopAll" 
+        Style="{StaticResource ModernButton}" Background="#991B1B"/>
+            </StackPanel>
+        </Border>
 
-        <Border Grid.Row="1" Background="#FFF0F0F0" Margin="0,0,0,10" 
-            Padding="10" CornerRadius="3" BorderBrush="#FFCCCCCC" BorderThickness="1">
+        <Border Grid.Row="1" Style="{StaticResource CardStyle}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="140"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
@@ -36,122 +127,166 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Text="Тип контента:" VerticalAlignment="Center" Margin="0,0,10,0" Grid.Row="0"/>
+                <TextBlock Text="Тип контента:" VerticalAlignment="Center" 
+                      Margin="0,0,12,0" FontWeight="SemiBold" Grid.Row="0"/>
 
                 <ComboBox Grid.Column="1" Grid.Row="0" x:Name="contentTypeCombo" 
-                     VerticalAlignment="Center" SelectionChanged="ContentType_Changed">
-                    <ComboBoxItem Content="Плейлист"/>
-                    <ComboBoxItem Content="Медиафайл"/>
-                    <ComboBoxItem Content="Веб-страница"/>
+                     VerticalAlignment="Center" VerticalContentAlignment="Center" Height="28" FontSize="13"
+                     SelectionChanged="ContentType_Changed">
+                    <ComboBoxItem Content="📋 Плейлист"/>
+                    <ComboBoxItem Content="🎬 Медиафайл"/>
+                    <ComboBoxItem Content="🌐 Веб-страница"/>
                 </ComboBox>
 
                 <StackPanel Grid.Column="2" Grid.Row="0" x:Name="playlistPanel" Orientation="Horizontal" 
-                       VerticalAlignment="Center" Margin="10,0">
-                    <TextBlock Text="Плейлист:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                    <ComboBox x:Name="playlistCombo" DisplayMemberPath="Name" Width="200"/>
+           VerticalAlignment="Center" Margin="12,0">
+                    <TextBlock Text="Плейлист:" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold"/>
+                    <ComboBox x:Name="playlistCombo" DisplayMemberPath="Name" Width="200" Height="28" VerticalContentAlignment="Center"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Grid.Row="0" x:Name="mediaFilePanel" Orientation="Horizontal" 
-                       VerticalAlignment="Center" Margin="10,0" Visibility="Collapsed">
-                    <TextBlock Text="Файл:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                    <TextBox x:Name="mediaFilePath" Width="180" Height="22.5" VerticalAlignment="Center"
-                        ToolTip="Путь к медиафайлу"/>
-                    <Button Content="..." Click="BrowseMediaFile" Height="22.5" Width="25" Margin="5,0"
-                       ToolTip="Выбрать файл"/>
+                            VerticalAlignment="Center" Margin="12,0" Visibility="Collapsed">
+                    <TextBlock Text="Файл:" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold"/>
+                    <TextBox x:Name="mediaFilePath" Width="180" Height="28" VerticalAlignment="Center"
+                             ToolTip="Путь к медиафайлу" VerticalContentAlignment="Center"/>
+                    <Button Content="..." Click="BrowseMediaFile" Height="28" Width="28" Margin="8,0,0,0"
+           ToolTip="Выбрать файл" Style="{StaticResource ModernButton}" Background="#6C757D"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Grid.Row="0" x:Name="webUrlPanel" Orientation="Horizontal" 
-                       VerticalAlignment="Center" Margin="10,0" Visibility="Collapsed">
-                    <TextBlock Text="URL:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                    <TextBox x:Name="webUrlTextBox" Text="https://" Width="200" Height="22.5"
-                        ToolTip="URL веб-страницы"/>
+           VerticalAlignment="Center" Margin="12,0" Visibility="Collapsed">
+                    <TextBlock Text="URL:" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold"/>
+                    <TextBox x:Name="webUrlTextBox" Text="https://" Width="200" Height="28"
+            ToolTip="URL веб-страницы" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
                 </StackPanel>
 
-                <Button Grid.Column="3" Grid.Row="0" Content="Применить к выбранным" Click="ApplyContentToSelected" 
-                   Width="150" Height="22.5" Margin="10,0" VerticalAlignment="Center"/>
+                <Button Grid.Column="3" Grid.Row="0" Content="Применить к выбранным" 
+                   Click="ApplyContentToSelected" Style="{StaticResource ModernButton}"
+                   Background="#6C757D" Width="auto" Height="28"/>
 
-                <TextBlock Grid.Column="2" Grid.Row="1" Grid.ColumnSpan="2" x:Name="selectionInfo" 
-                      Text="Выберите дисплеи в таблице ниже" Margin="10,5,0,0" FontStyle="Italic"/>
+                <TextBlock Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="4" 
+                      x:Name="selectionInfo" Text="Выберите дисплеи в таблице ниже" 
+                      Margin="0,8,0,0" FontStyle="Italic" Foreground="#666"/>
             </Grid>
         </Border>
 
-        <DataGrid Grid.Row="2" x:Name="displaysGrid" IsReadOnly="True" AutoGenerateColumns="False" ItemsSource="{Binding}">
-            <DataGrid.Columns>
-                <DataGridTemplateColumn Header="Выбор" Width="60">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <CheckBox VerticalAlignment="Center" IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center"
-                                 ToolTip="Выбрать для применения контента"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
+        <Border Grid.Row="2" Style="{StaticResource CardStyle}" Margin="0" Padding="0">
+            <DataGrid x:Name="displaysGrid" IsReadOnly="True" AutoGenerateColumns="False" 
+              ItemsSource="{Binding Displays}" HeadersVisibility="Column" BorderThickness="0"
+              Background="Transparent" RowBackground="White" 
+              AlternatingRowBackground="Transparent"
+              HorizontalScrollBarVisibility="Auto"
+              VerticalScrollBarVisibility="Auto">
 
-                <DataGridTextColumn Header="Дисплей" Binding="{Binding Name}" Width="100"/>
-                <DataGridTextColumn Header="Разрешение" Binding="{Binding Resolution}" Width="100"/>
-                <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="80"/>
-                <DataGridTextColumn Header="Тип контента" Binding="{Binding ContentType}" Width="100"/>
-                <DataGridTextColumn Header="Текущий контент" Binding="{Binding CurrentContent}" Width="150"/>
-
-                <DataGridTemplateColumn Header="Действия" Width="200">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <Button Content="▶" Click="StartDisplay" Tag="{Binding Id}" 
-                                Width="30" ToolTip="Запустить" Margin="1"/>
-                                <Button Content="⏹" Click="StopDisplay" Tag="{Binding Id}" 
-                                Width="30" ToolTip="Остановить" Margin="1"/>
-                                <Button Content="⚙" Click="ConfigureDisplay" Tag="{Binding Id}" 
-                                Width="30" ToolTip="Настроить" Margin="1"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Setter Property="VerticalContentAlignment" Value="Center"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="Height" Value="32.5"/>
+                    </Style>
+                </DataGrid.RowStyle>
                 
-            </DataGrid.Columns>
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="✓" Width="50" CanUserResize="False">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center"
+                              IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              ToolTip="Выбрать для применения контента"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
 
-            <DataGrid.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="Выбрать все" Click="SelectAllDisplays"/>
-                    <MenuItem Header="Снять выделение" Click="DeselectAllDisplays"/>
-                    <Separator/>
+                    <DataGridTextColumn Header="Дисплей" Binding="{Binding Name}" Width="100*" MinWidth="100">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="TextAlignment" Value="Left"/>
+                                <Setter Property="Padding" Value="2.5, 0"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
 
-                    <MenuItem Header="Запустить плейлист на выбранных" Click="StartPlaylistOnSelected">
-                        <MenuItem.Icon>
-                            <Image Width="16" Height="16"/>
-                        </MenuItem.Icon>
-                    </MenuItem>
+                    <DataGridTextColumn Header="Разрешение" Binding="{Binding Resolution}" Width="70*" MinWidth="80">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="TextAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
 
-                    <MenuItem Header="Запустить медиафайл на выбранных" Click="StartMediaOnSelected">
-                        <MenuItem.Icon>
-                            <Image Width="16" Height="16"/>
-                        </MenuItem.Icon>
-                    </MenuItem>
+                    <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="90*" MinWidth="80">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="TextAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
 
-                    <MenuItem Header="Запустить веб-страницу на выбранных" Click="StartWebOnSelected">
-                        <MenuItem.Icon>
-                            <Image Width="16" Height="16"/>
-                        </MenuItem.Icon>
-                    </MenuItem>
+                    <DataGridTextColumn Header="Тип контента" Binding="{Binding ContentType}" Width="120*" MinWidth="100">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="TextAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
 
-                    <Separator/>
-                    <MenuItem Header="Остановить выбранные" Click="StopSelectedDisplays">
-                        <MenuItem.Icon>
-                            <Image Width="16" Height="16"/>
-                        </MenuItem.Icon>
-                    </MenuItem>
+                    <DataGridTextColumn Header="Текущий контент" Binding="{Binding CurrentContent}" Width="200*" MinWidth="150">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="TextAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
 
-                    <MenuItem Header="Настройки выбранных" Click="ConfigureSelectedDisplays">
-                        <MenuItem.Icon>
-                            <Image Width="16" Height="16"/>
-                        </MenuItem.Icon>
-                    </MenuItem>
-                </ContextMenu>
-            </DataGrid.ContextMenu>
-        </DataGrid>
+                    <DataGridTemplateColumn Header="Действия" Width="160" CanUserResize="False">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="2">
+                                    <Button Click="StartDisplay" Tag="{Binding Id}" 
+                                            ToolTip="Запустить воспроизведение"
+                                            Style="{StaticResource ModernIconButton}"
+                                            Background="#10B981"
+                                            Margin="1">
+                                        <Path Data="M8 5v14l11-7z" Fill="#E8F5E8" Stretch="Uniform"
+                                              Width="10" Height="10"/>
+                                    </Button>
 
-        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,10,0,0">
-            <TextBlock x:Name="selectedDisplaysCount" Text="Выбрано: 0" Margin="0,0,20,0"/>
-            <TextBlock x:Name="displaysStatus" Text="Готово"/>
-        </StackPanel>
+                                    <Button Click="StopDisplay" Tag="{Binding Id}" 
+                                            ToolTip="Остановить воспроизведение"
+                                            Style="{StaticResource ModernIconButton}"
+                                            Background="#EF4444" Margin="1">
+                                        <Rectangle Fill="#FFEBEE" Width="10" Height="10" RadiusX="1" RadiusY="1"/>
+                                    </Button>
+
+                                    <Button Click="ConfigureDisplay" Tag="{Binding Id}" 
+                                            ToolTip="Настройки дисплея"
+                                            Style="{StaticResource ModernIconButton}"
+                                            Background="#6B7280" Margin="1">
+                                        <Path Data="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" 
+                                              Fill="White" Stretch="Uniform" Width="10" Height="10"/>
+                                    </Button>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <Border Grid.Row="3" Background="#F8F9FA" BorderBrush="#E0E0E0" BorderThickness="1,0,0,0" 
+            Padding="10,8" CornerRadius="0,0,6,6">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding ActiveDisplaysString}" FontWeight="SemiBold" 
+                      Margin="0,0,20,0" VerticalAlignment="Center"/>
+                <Rectangle Width="1" Height="20" Fill="#E0E0E0" Margin="0,0,20,0"/>
+                <TextBlock x:Name="displaysStatus" Text="Готово" VerticalAlignment="Center" 
+                      Foreground="#666" FontStyle="Italic"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </Page>

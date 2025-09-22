@@ -8,7 +8,9 @@
         Background="White"
         Title="MainWindow"
         Height="450"
-        Width="800">
+        Width="800"
+        MinHeight="450"
+        MinWidth="800">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -17,7 +19,7 @@
         </Grid.RowDefinitions>
 
         <DockPanel Grid.Row="0" Background="#FF2D2D30" Height="40">
-            <TextBlock Text="Digital Signage Manager" 
+            <TextBlock Text="Цифровая заставка" 
                     Foreground="White" FontSize="14" FontWeight="Bold"
                     VerticalAlignment="Center" Margin="15,0"/>
 
@@ -38,7 +40,7 @@
                 <TextBlock x:Name="statusText" Text="Готов к работе"/>
             </StatusBarItem>
             <StatusBarItem HorizontalAlignment="Right">
-                <TextBlock Text="{Binding ActiveDisplaysCount, StringFormat='Активных дисплеев: {0}'}" 
+                <TextBlock Text="{Binding ActiveDisplaysCount, StringFormat='Активных дисплеев: {ActiveDisplaysCount}'}" 
                         Margin="0,0,10,0"/>
             </StatusBarItem>
         </StatusBar>

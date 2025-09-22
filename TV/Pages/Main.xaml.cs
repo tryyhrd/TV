@@ -16,21 +16,29 @@ namespace TV.Pages
     /// </summary>
     public partial class Main : Page
     {
-        private ObservableCollection<Display> displays = new ObservableCollection<Display>();
+        private ObservableCollection<Display> displays { get; } = new ObservableCollection<Display>();
+        private MainViewModel viewModel;
         public Main()
         {
             InitializeComponent();
 
+            viewModel = new MainViewModel();
+            DataContext = viewModel;
+
             contentTypeCombo.SelectedIndex = 1;
+
+            displaysGrid.ItemsSource = viewModel.Displays;
         }
 
         private void DetectDisplays(object sender, RoutedEventArgs e)
         {
             var screens = Screen.AllScreens;
 
+            viewModel.Displays.Clear();
+
             for (int i = 0; i < screens.Length; i++)
             {
-                var display = new Display
+                var display = new Display()
                 {
                     Id = i,
                     Name = screens[i].DeviceName,
@@ -39,10 +47,10 @@ namespace TV.Pages
                     Status = "Обнаружен"
                 };
 
-                displays.Add(display);
+                viewModel.Displays.Add(display);
             }
 
-            displaysGrid.ItemsSource = displays;
+            viewModel.UpdateActiveDisplaysString();
         }
 
         private void TestAllDisplays(object sender, RoutedEventArgs e)
@@ -92,30 +100,15 @@ namespace TV.Pages
 
         private void ContentType_Changed(object sender, SelectionChangedEventArgs e)
         {
-            if (contentTypeCombo.SelectedItem == null) return;
-
-            var selectedType = (contentTypeCombo.SelectedItem as ComboBoxItem)?.Content.ToString();
-
             playlistPanel.Visibility = Visibility.Collapsed;
             mediaFilePanel.Visibility = Visibility.Collapsed;
             webUrlPanel.Visibility = Visibility.Collapsed;
 
-            switch (selectedType)
+            switch (contentTypeCombo.SelectedIndex)
             {
-                case "Плейлист":
-                    playlistPanel.Visibility = Visibility.Visible;
-                    selectionInfo.Text = "Выберите плейлист и дисплеи для применения";
-                    break;
-
-                case "Медиафайл":
-                    mediaFilePanel.Visibility = Visibility.Visible;
-                    selectionInfo.Text = "Выберите файл и дисплеи для применения";
-                    break;
-
-                case "Веб-страница":
-                    webUrlPanel.Visibility = Visibility.Visible;
-                    selectionInfo.Text = "Введите URL и выберите дисплеи для применения";
-                    break;
+                case 0: playlistPanel.Visibility = Visibility.Visible; break;
+                case 1: mediaFilePanel.Visibility = Visibility.Visible; break;
+                case 2: webUrlPanel.Visibility = Visibility.Visible; break;
             }
         }
 
