@@ -5,95 +5,12 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:TV.Pages"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      d:DesignHeight="500" d:DesignWidth="900"
       Title="Main" Background="White">
 
     <Grid Margin="15">
         <Grid.Resources>
-            <Style TargetType="Button" x:Key="ModernButton">
-                <Setter Property="Background" Value="#007ACC"/>
-                <Setter Property="Foreground" Value="White"/>
-                <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="Padding" Value="12,6"/>
-                <Setter Property="Margin" Value="0,0,8,0"/>
-                <Setter Property="FontSize" Value="13"/>
-                <Setter Property="Cursor" Value="Hand"/>
-            </Style>
-
-            <Style TargetType="Border" x:Key="CardStyle">
-                <Setter Property="Background" Value="#FAFAFA"/>
-                <Setter Property="BorderBrush" Value="#E0E0E0"/>
-                <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="CornerRadius" Value="6"/>
-                <Setter Property="Padding" Value="15"/>
-                <Setter Property="Margin" Value="0,0,0,12"/>
-            </Style>
-
-            <Style x:Key="IconButtonStyle" TargetType="Button">
-                <Setter Property="Width" Value="32"/>
-                <Setter Property="Height" Value="32"/>
-                <Setter Property="Padding" Value="0"/>
-                <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="Foreground" Value="White"/>
-                <Setter Property="FontWeight" Value="SemiBold"/>
-                <Setter Property="Cursor" Value="Hand"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="border" 
-                                    Background="{TemplateBinding Background}" 
-                                    CornerRadius="4"
-                                    BorderThickness="0">
-                                        <ContentPresenter HorizontalAlignment="Center" 
-                                                  VerticalAlignment="Center"
-                                                  Margin="{TemplateBinding Padding}"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="border" Property="Opacity" Value="0.8"/>
-                                </Trigger>
-                                <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="border" Property="Opacity" Value="0.6"/>
-                                </Trigger>
-                                <Trigger Property="IsEnabled" Value="False">
-                                    <Setter TargetName="border" Property="Opacity" Value="0.4"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-
-            <Style x:Key="ModernIconButton" TargetType="Button">
-                <Setter Property="Background" Value="#10B981"/>
-                <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="Foreground" Value="White"/>
-                <Setter Property="Width" Value="28"/>
-                <Setter Property="Height" Value="24"/>
-                <Setter Property="Padding" Value="0"/>
-                <Setter Property="Margin" Value="1"/>
-                <Setter Property="Cursor" Value="Hand"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="border" 
-                        Background="{TemplateBinding Background}"
-                        BorderThickness="0"
-                        CornerRadius="3">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="border" Property="Opacity" Value="0.8"/>
-                                </Trigger>
-                                <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="border" Property="Opacity" Value="0.6"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
+            <ResourceDictionary Source="/Resources/Dictionary.xaml"/>
         </Grid.Resources>
 
         <Grid.RowDefinitions>
@@ -107,9 +24,9 @@
             <StackPanel Orientation="Horizontal">
                 <Button Content="🔄 Обнаружить дисплеи" Click="DetectDisplays" 
         Style="{StaticResource ModernButton}" Background="#374151"/>
-                <Button Content="▶️ Запустить все" Click="StartAll" 
+                <Button Content="▶️ Запустить выбранные" Click="StartAll" 
         Style="{StaticResource ModernButton}" Background="#065F46"/>
-                <Button Content="⏹️ Остановить все" Click="StopAll" 
+                <Button Content="⏹️ Остановить выбранные" Click="StopAll" 
         Style="{StaticResource ModernButton}" Background="#991B1B"/>
             </StackPanel>
         </Border>
@@ -197,7 +114,7 @@
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
 
-                    <DataGridTextColumn Header="Дисплей" Binding="{Binding Name}" Width="100*" MinWidth="100">
+                    <DataGridTextColumn Header="Дисплей" Binding="{Binding Name}" Width="100*" MinWidth="60">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="VerticalAlignment" Value="Center"/>
@@ -207,7 +124,7 @@
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
 
-                    <DataGridTextColumn Header="Разрешение" Binding="{Binding Resolution}" Width="70*" MinWidth="80">
+                    <DataGridTextColumn Header="Разрешение" Binding="{Binding Resolution}" Width="80*" MinWidth="80">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="VerticalAlignment" Value="Center"/>
@@ -216,7 +133,7 @@
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
 
-                    <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="90*" MinWidth="80">
+                    <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="80*" MinWidth="80">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="VerticalAlignment" Value="Center"/>
@@ -243,7 +160,7 @@
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
 
-                    <DataGridTemplateColumn Header="Действия" Width="160" CanUserResize="False">
+                    <DataGridTemplateColumn Header="Действия" Width="120" CanUserResize="False">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="2">

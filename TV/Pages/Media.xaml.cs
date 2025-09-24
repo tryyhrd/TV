@@ -84,5 +84,65 @@ namespace TV.Pages
         {
 
         }
+
+        private void CreatePlaylist(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void DeleteSelectedPlaylists(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void ImportPlaylist(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void ExportPlaylist(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void RenamePlaylist(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void TogglePreview(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void MoveItemUp(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void MoveItemDown(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void RemoveItem(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void AddMediaFiles(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void AddWebContent(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void ConfigureTiming(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

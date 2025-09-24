@@ -7,29 +7,42 @@
         mc:Ignorable="d"
         Background="White"
         Title="MainWindow"
-        Height="450"
-        Width="800"
-        MinHeight="450"
-        MinWidth="800">
+        Height="500"
+        Width="900"
+        MinHeight="500"
+        MinWidth="900">
     <Grid>
+        <Grid.Resources>
+            <ResourceDictionary Source="/Resources/Dictionary.xaml"/>
+        </Grid.Resources>
+        
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <DockPanel Grid.Row="0" Background="#FF2D2D30" Height="40">
+        <DockPanel Grid.Row="0" Background="#FF2D2D30" Height="50">
             <TextBlock Text="Цифровая заставка" 
                     Foreground="White" FontSize="14" FontWeight="Bold"
                     VerticalAlignment="Center" Margin="15,0"/>
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="10,2.5">
-                <Button Content="📺 Дисплеи"  
-                     Click="NavigateToDisplays" Tag="DisplaysPage"/>
-                <Button Content="🎵 Плейлисты" 
-                     Click="NavigateToMedia" Tag="MediaPage" Margin="5,0"/>
-                <Button Content="⏰ Расписания" 
-                     Click="NavigateToSchedules" Tag="SchedulesPage" Margin="5,0"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="10,5">
+                <Button x:Name="displaysNavButton" 
+                        Content="📺 Дисплеи" 
+                        Click="NavigateToDisplays" 
+                        Style="{StaticResource NavButtonDark}"/>
+
+                <Button x:Name="mediaNavButton" 
+                        Content="🎵 Плейлисты" 
+                        Click="NavigateToMedia" 
+                        Margin="5,0" 
+                        Style="{StaticResource NavButtonDark}"/>
+
+                <Button x:Name="schedulesNavButton" 
+                        Content="⏰ Расписания" 
+                        Click="NavigateToSchedules" 
+                        Style="{StaticResource NavButtonDark}"/>
             </StackPanel>
         </DockPanel>
 

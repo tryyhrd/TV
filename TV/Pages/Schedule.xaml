@@ -5,187 +5,145 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:TV.Pages"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      d:DesignHeight="500" d:DesignWidth="900"
       Title="Schedule" Background="White">
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="250"/>
-            <ColumnDefinition Width="5"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+    <Grid Margin="15">
+        <Grid.Resources>
+            <ResourceDictionary Source="/Resources/Dictionary.xaml"/>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-        <StackPanel Grid.Column="0" Background="#FFF0F0F0">
-            <TextBlock Text="Расписания" Margin="10,10,10,5" FontWeight="Bold"/>
-            <ListView x:Name="schedulesList" Margin="10,0,10,10">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Name}" Margin="2"/>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+        <Border Grid.Row="0" Style="{StaticResource CardStyle}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="⏰ Управление расписаниями" Style="{StaticResource PageHeaderStyle}"/>
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
-                <Button Content="Добавить" Click="AddSchedule" Width="80"/>
-                <Button Content="Удалить" Click="DeleteSchedule" Width="80" Margin="5,0"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,0,0,0">
+                    <Button Content="➕ Новое расписание" Click="CreateSchedule" 
+                        Style="{StaticResource ModernButton}" Background="#10B981"/>
+                    <Button Content="🗑️ Удалить выбранные" Click="DeleteSchedules" 
+                        Style="{StaticResource ModernButton}" Background="#EF4444" Margin="8,0,0,0"/>
+                </StackPanel>
             </StackPanel>
-        </StackPanel>
+        </Border>
 
-        <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch"/>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-        <!-- Редактор расписания -->
-        <Grid Grid.Column="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-
-            <!-- Заголовок редактора -->
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
-                <TextBlock Text="Редактирование: " FontWeight="Bold"/>
-                <TextBlock x:Name="currentScheduleName" Text="Новое расписание" FontWeight="Bold"/>
-            </StackPanel>
-
-            <!-- Ваш существующий XAML для расписания -->
-            <ScrollViewer Grid.Row="1" Margin="10">
+            <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0" Padding="10">
                 <Grid>
-                    <Grid.Resources>
-                        <ResourceDictionary Source="/Resources/Dictionary.xaml"/>
-                    </Grid.Resources>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Активные расписания" FontWeight="SemiBold" Margin="0,0,0,10"/>
+
+                    <ListView Grid.Row="1" x:Name="schedulesListView" 
+                          SelectionChanged="Schedule_Selected"
+                          BorderThickness="0" Background="Transparent">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="8,6" Background="Transparent" CornerRadius="4">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Name}" FontWeight="Medium"/>
+                                        <TextBlock Text="{Binding ScheduleRange}" FontSize="11" Foreground="#666"/>
+                                        <TextBlock Text="{Binding Status}" FontSize="11" 
+                                               Foreground="{Binding StatusColor}"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+            </Border>
+
+            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="Transparent"/>
+
+            <Border Grid.Column="2" Style="{StaticResource CardStyle}" Margin="0" Padding="0">
+                <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <Grid Grid.Row="1" Background="#FFF0F0F0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="200"/>
-                            <ColumnDefinition Width="5"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                    <Border Grid.Row="0" Background="#F8F9FA" Padding="15" CornerRadius="6,6,0,0">
+                        <Grid>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock x:Name="currentScheduleName" Text="Выберите расписание" 
+                                       FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="scheduleStatus" Text=" (Неактивно)" 
+                                       Foreground="#666" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                            </StackPanel>
 
-                        <StackPanel Grid.Column="0" Background="#FFE8E8E8">
-                            <Button Content="Библиотека" 
-              Style="{StaticResource SectionHeaderButtonStyle}"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Content="▶️ Запустить" Click="StartSchedule" 
+                                    Style="{StaticResource ModernIconButton}" Background="#10B981" Width="auto"/>
+                                <Button Content="⏹️ Остановить" Click="StopSchedule" 
+                                    Style="{StaticResource ModernIconButton}" Background="#EF4444" Margin="5,0" Width="auto"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
 
-                            <Expander Header="Группы" Margin="5,2" Foreground="#FF333333">
-                                <StackPanel Margin="15,5">
-                                    <TextBlock Text="Реклама" Foreground="#FF555555" Margin="2"/>
-                                    <TextBlock Text="Новости" Foreground="#FF555555" Margin="2"/>
-                                </StackPanel>
-                            </Expander>
-
-                            <Expander Header="Медиа" Margin="5,2" Foreground="#FF333333">
-                                <StackPanel Margin="15,5">
-                                    <TextBlock Text="Фото (12)" Foreground="#FF555555" Margin="2"/>
-                                    <TextBlock Text="Видео (5)" Foreground="#FF555555" Margin="2"/>
-                                    <TextBlock Text="Сайты (3)" Foreground="#FF555555" Margin="2"/>
-                                </StackPanel>
-                            </Expander>
-                        </StackPanel>
-
-                        <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="#FFCCCCCC"/>
-
-                        <Grid Grid.Column="2" Background="#FFF5F5F5">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-
-                            <Button Content="Расписание" 
-              Style="{StaticResource SectionHeaderButtonStyle}"/>
-
-                            <ScrollViewer Grid.Row="1" Margin="10">
-                                <StackPanel>
-                                    <Border Margin="0,5" Background="#FFFFFFFF" CornerRadius="3" Padding="10" BorderBrush="#FFDDDDDD" BorderThickness="1">
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl x:Name="timelineItems" Margin="10">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource CardStyle}" Margin="0,0,0,8" Padding="10">
                                         <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                            </Grid.RowDefinitions>
                                             <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <Expander Header="08:00 [Реклама]" Foreground="#FF333333" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">
-                                                <StackPanel Margin="5,2.5">
-                                                    <TextBlock Text="Фото (12)" Foreground="#FF555555" Margin="2"/>
-                                                    <TextBlock Text="Видео (5)" Foreground="#FF555555" Margin="2"/>
-                                                    <TextBlock Text="Сайты (3)" Foreground="#FF555555" Margin="2"/>
-                                                </StackPanel>
-                                            </Expander>
+                                            <StackPanel Grid.Column="0" Margin="0,0,15,0">
+                                                <TextBlock Text="{Binding StartTime}" FontWeight="Bold" FontSize="14"/>
+                                                <TextBlock Text="{Binding EndTime}" Foreground="#666" FontSize="12"/>
+                                            </StackPanel>
 
-                                            <TextBlock Text="30 мин" Foreground="#FF666666" 
-                                     Grid.Row="0" Grid.Column="1" VerticalAlignment="Center"
-                                     Margin="10,0,0,0"/>
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock Text="{Binding PlaylistName}" FontWeight="SemiBold"/>
+                                                <TextBlock Text="{Binding Description}" Foreground="#666" FontSize="12"/>
+                                                <ProgressBar Value="{Binding Progress}" Maximum="100" 
+                                                         Height="6" Margin="0,5,0,0" Background="#E5E7EB"/>
+                                            </StackPanel>
 
-                                            <ProgressBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-                                       Value="75" Maximum="100" Height="10" 
-                                       Background="#FFEEEEEE" Foreground="#FF007ACC"
-                                       VerticalAlignment="Center" Margin="0,5,0,0"/>
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                                <Button Content="✏️" Click="EditTimeSlot" Tag="{Binding Id}"
+                                                    Style="{StaticResource ModernIconButton}" Background="#6B7280"/>
+                                                <Button Content="🗑️" Click="DeleteTimeSlot" Tag="{Binding Id}"
+                                                    Style="{StaticResource ModernIconButton}" Background="#EF4444" Margin="5,0"/>
+                                            </StackPanel>
                                         </Grid>
                                     </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
 
-                                    <Border Margin="0,5" Background="#FFFFFFFF" CornerRadius="3" Padding="10" BorderBrush="#FFDDDDDD" BorderThickness="1">
-                                        <StackPanel>
-                                            <Grid Margin="0,0,0,5">
-                                                <Expander Header="08:30 [Новости]" Foreground="#FF333333" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">
-                                                    <StackPanel Margin="5,2.5">
-                                                        <TextBlock Text="Фото (12)" Foreground="#FF555555" Margin="2"/>
-                                                        <TextBlock Text="Видео (5)" Foreground="#FF555555" Margin="2"/>
-                                                        <TextBlock Text="Сайты (3)" Foreground="#FF555555" Margin="2"/>
-                                                    </StackPanel>
-                                                </Expander>
-                                                <TextBlock Text="20 мин" Foreground="#FF666666" 
-                                         HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                            </Grid>
-                                            <ProgressBar Value="50" Maximum="100" Height="10" 
-                                       Background="#FFEEEEEE" Foreground="#FF007ACC"/>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <Border Margin="0,5" Background="#FFFFFFFF" CornerRadius="3" Padding="10" BorderBrush="#FFDDDDDD" BorderThickness="1">
-                                        <StackPanel>
-                                            <Grid Margin="0,0,0,5">
-                                                <Expander Header="09:00 [Меню]" Foreground="#FF333333" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">
-                                                    <StackPanel Margin="5,2.5">
-                                                        <TextBlock Text="Фото (12)" Foreground="#FF555555" Margin="2"/>
-                                                        <TextBlock Text="Видео (5)" Foreground="#FF555555" Margin="2"/>
-                                                        <TextBlock Text="Сайты (3)" Foreground="#FF555555" Margin="2"/>
-                                                    </StackPanel>
-                                                </Expander>
-                                                <TextBlock Text="40 мин" Foreground="#FF666666" 
-                                         HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                            </Grid>
-                                            <ProgressBar Value="100" Maximum="100" Height="10" 
-                                       Background="#FFEEEEEE" Foreground="#FF007ACC"/>
-                                        </StackPanel>
-                                    </Border>
-                                </StackPanel>
-                            </ScrollViewer>
-                        </Grid>
-                    </Grid>
-
-                    <DockPanel Grid.Row="2" Background="#FFE5E5E5" Height="40">
-                        <StackPanel Orientation="Horizontal" Margin="10,0">
-                            <Button Content="Добавить" Style="{StaticResource BottomButtonStyle}"/>
+                    <Border Grid.Row="2" Background="#F8F9FA" Padding="10" CornerRadius="0,0,6,6">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="➕ Добавить период" Click="AddTimeSlot" 
+                                Style="{StaticResource ModernButton}" Background="#10B981"/>
+                            <ComboBox x:Name="playlistSelector" Width="200" Margin="10,0" 
+                                  DisplayMemberPath="Name" Height="28"/>
+                            <DatePicker x:Name="scheduleDate" Width="120" Margin="10,0"/>
+                            <Button Content="🔄 Повторение" Click="ConfigureRepeating" 
+                                Style="{StaticResource ModernButton}" Background="#6B7280" Margin="10,0"/>
                         </StackPanel>
-
-                        <TextBlock Text='Текущее: "Новости" (08:30-08:50)' 
-           Foreground="#FF333333" 
-           VerticalAlignment="Center"
-           HorizontalAlignment="Center"/>
-
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="10,0">
-                            <Button Content="▶" Style="{StaticResource BottomButtonStyle}"/>
-                            <Button Content="■" Style="{StaticResource BottomButtonStyle}" Margin="5,0"/>
-                            <Button Content="=>" Style="{StaticResource BottomButtonStyle}" Margin="5,0"/>
-                        </StackPanel>
-                    </DockPanel>
+                    </Border>
                 </Grid>
-            </ScrollViewer>
+            </Border>
         </Grid>
     </Grid>
 </Page>
