@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -12,22 +13,49 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using TV.Classes;
+using TV.Classes.ViewModels;
 
-namespace TV.Pages
+namespace TV.Pages.Media
 {
     /// <summary>
     /// Логика взаимодействия для Media.xaml
     /// </summary>
-    public partial class Media : Page
+    public partial class Main : Page
     {
-        public Media()
+        private PlaylistsViewModel viewModel;
+        private Playlist selectedPlaylist;
+        public Main()
         {
             InitializeComponent();
+
+            viewModel = new PlaylistsViewModel();
+            DataContext = viewModel;
+
+            LoadPlaylists();
         }
 
-        private void Playlist_Selected(object sender, SelectionChangedEventArgs e)
+        private async void LoadPlaylists()
         {
+            try
+            {
+                await viewModel.LoadPlaylistsAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки плейлистов: {ex.Message}");
+            }
+        }
 
+        private async void Playlist_Selected(object sender, SelectionChangedEventArgs e)
+        {
+            selectedPlaylist = playlistsListView.SelectedItem as Playlist;
+
+            var connection = new Classes.Common.Connection();
+            var items = await connection.GetPlaylistItemsAsync(selectedPlaylist.Id);
+
+            if (items != null)
+                playlistContentGrid.ItemsSource = items;
         }
 
         private void AddPlaylist(object sender, RoutedEventArgs e)
@@ -87,7 +115,7 @@ namespace TV.Pages
 
         private void CreatePlaylist(object sender, RoutedEventArgs e)
         {
-
+            MainWindow.main.mainFrame.Navigate(new CreatePlaylist());
         }
 
         private void DeleteSelectedPlaylists(object sender, RoutedEventArgs e)
@@ -132,7 +160,8 @@ namespace TV.Pages
 
         private void AddMediaFiles(object sender, RoutedEventArgs e)
         {
-
+            if (selectedPlaylist != null)
+                MainWindow.main.mainFrame.Navigate(new AddMedia(selectedPlaylist));
         }
 
         private void AddWebContent(object sender, RoutedEventArgs e)

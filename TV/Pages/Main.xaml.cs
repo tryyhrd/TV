@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -16,7 +13,7 @@ namespace TV.Pages
     /// </summary>
     public partial class Main : Page
     {
-        private ObservableCollection<Display> displays { get; } = new ObservableCollection<Display>();
+
         private MainViewModel viewModel;
         public Main()
         {
@@ -32,9 +29,9 @@ namespace TV.Pages
 
         private void DetectDisplays(object sender, RoutedEventArgs e)
         {
-            var screens = Screen.AllScreens;
-
             viewModel.Displays.Clear();
+            
+            var screens = Screen.AllScreens;
 
             for (int i = 0; i < screens.Length; i++)
             {
@@ -130,7 +127,7 @@ namespace TV.Pages
 
         private void ApplyContentToSelected(object sender, RoutedEventArgs e)
         {
-            var selectedDisplays = displays.Where(d => d.IsSelected).ToList();
+            var selectedDisplays = viewModel.Displays.Where(d => d.IsSelected).ToList();
 
             if (selectedDisplays.Count == 0)
             {
@@ -139,7 +136,7 @@ namespace TV.Pages
             }
 
             var contentTypeItem = contentTypeCombo.SelectedItem as ComboBoxItem;
-            string contentType = contentTypeItem?.Content.ToString();
+            string contentType = contentTypeItem?.Content.ToString().Split(' ')[1];
 
             foreach (var display in selectedDisplays)
             {

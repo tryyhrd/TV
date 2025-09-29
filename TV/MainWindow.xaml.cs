@@ -7,10 +7,12 @@ namespace TV
     /// </summary>
     public partial class MainWindow : Window
     {
-
+        public static MainWindow main;
         public MainWindow()
         {
             InitializeComponent();
+
+            main = this;
 
             mainFrame.Navigate(new Pages.Main());
         }
@@ -19,7 +21,7 @@ namespace TV
             => mainFrame.Navigate(new Pages.Main());
 
         private void NavigateToMedia(object sender, RoutedEventArgs e)
-            => mainFrame.Navigate(new Pages.Media());
+            => mainFrame.Navigate(new Pages.Media.Main());
 
         private void NavigateToSchedules(object sender, RoutedEventArgs e)
             => mainFrame.Navigate(new Pages.Schedule());
