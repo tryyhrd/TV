@@ -38,8 +38,8 @@ namespace TV.Pages.Media
                     var orderIndex = currentMaxOrder + 1;
 
                     var insertQuery = @"INSERT INTO PlaylistItems 
-                                        (PlaylistId, OrderIndex, Name, Duration, Size, FilePath) 
-                                        VALUES (@playlistId, @orderIndex, @name, @duration, @size, @filePath)";
+                                    (PlaylistId, OrderIndex, Name, Type, Duration, Size, FilePath) 
+                                    VALUES (@playlistId, @orderIndex, @name, @type, @duration, @size, @filePath)";
 
                     foreach (var file in files)
                     {
@@ -48,7 +48,8 @@ namespace TV.Pages.Media
                             insertCommand.Parameters.AddWithValue("@playlistId", playlistId);
                             insertCommand.Parameters.AddWithValue("@orderIndex", orderIndex++);
                             insertCommand.Parameters.AddWithValue("@name", file.Name);
-                            insertCommand.Parameters.AddWithValue("@duration", (object)file.Duration ?? DBNull.Value);
+                            insertCommand.Parameters.AddWithValue("@type", file.Type);
+                            insertCommand.Parameters.AddWithValue("@duration", file.Duration);
                             insertCommand.Parameters.AddWithValue("@size", file.Size);
                             insertCommand.Parameters.AddWithValue("@filePath", file.FilePath);
 
@@ -58,19 +59,6 @@ namespace TV.Pages.Media
                 }
                 return true;
             }
-        }
-
-        private ContentItem CreateContentItemFromFile(string filePath)
-        {
-            var fileInfo = new FileInfo(filePath);
-            var extension = fileInfo.Extension.ToLower().TrimStart('.');
-
-            return new ContentItem
-            {
-                Name = Path.GetFileNameWithoutExtension(filePath),
-                FilePath = filePath,
-                Size = fileInfo.Length
-            };
         }
 
         private void BrowseMediaFiles(object sender, RoutedEventArgs e)
@@ -89,21 +77,47 @@ namespace TV.Pages.Media
 
         private void ProcessFiles(string[] filePaths)
         {
+            var order = 1;
+            
             foreach (var filePath in filePaths)
             {
                var fileInfo = new FileInfo(filePath);
                var extension = Path.GetExtension(filePath).ToLower().TrimStart('.');
+               var mediaType = GetMediaType(extension);
 
-               selectedFiles.Add(new ContentItem
-               {
+                selectedFiles.Add(new ContentItem
+                {
                    Name = Path.GetFileNameWithoutExtension(filePath),
+                   Type = mediaType,
+                   Order = order,
                    FilePath = filePath,
-                   Size = fileInfo.Length,
-                   Duration = ""
-               });
+                   Size = fileInfo.Length
+                });
+                
+                order++;
             }
 
             UpdateUI();
+        }
+
+        private static readonly Dictionary<string, string> mediaTypes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            {"mp4", "video"}, {"avi", "video"}, {"mkv", "video"}, {"mov", "video"},
+            {"wmv", "video"}, {"flv", "video"}, {"webm", "video"},
+            
+            {"mp3", "audio"}, {"wav", "audio"}, {"ogg", "audio"}, {"flac", "audio"},
+            {"aac", "audio"}, {"wma", "audio"},
+            
+            {"jpg", "image"}, {"jpeg", "image"}, {"png", "image"}, {"gif", "image"},
+            {"bmp", "image"}, {"tiff", "image"}, {"webp", "image"}
+        };
+
+        private string GetMediaType(string extension)
+        {
+            if (mediaTypes.TryGetValue(extension, out string mediaType))
+                return mediaType;
+
+            return "unknown";
         }
 
         private void UpdateUI()
@@ -214,6 +228,11 @@ namespace TV.Pages.Media
         private void BrowseFolder(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void Duration_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        {
+            e.Handled = !char.IsDigit(e.Text, 0);
         }
     }
 }

@@ -23,12 +23,16 @@ namespace TV.Classes.Common
                 var reader = await command.ExecuteReaderAsync();
                 while (await reader.ReadAsync())
                 {
-                    playlists.Add(new Playlist
+                    var playlist = new Playlist
                     {
                         Id = reader.GetInt32(0),
                         Name = reader.GetString(1),
                         IsActive = reader.GetBoolean(2)
-                    });
+                    };
+
+                    playlist.Items = await GetPlaylistItemsAsync(playlist.Id);
+
+                    playlists.Add(playlist);
                 }
             }
 
@@ -56,13 +60,38 @@ namespace TV.Classes.Common
                 {
                     Id = reader.GetInt32(0),
                     PlaylistId = reader.GetInt32(1),
+                    Order = reader.GetInt32(2),
                     Name = reader.GetString(3),
-                    Size = reader.IsDBNull(4) ? 0 : reader.GetInt64(4),
-                    FilePath = reader.IsDBNull(5) ? null : reader.GetString(5)
+                    Type = reader.GetString(4),
+                    Duration = reader.GetInt32(5),
+                    Size = reader.IsDBNull(6) ? 0 : reader.GetInt64(6),
+                    FilePath = reader.IsDBNull(7) ? null : reader.GetString(7)
                 });
             }
 
             return items;
+        }
+
+        public async Task DeletePlaylistAsync(int playlistId, MySqlConnection connection, MySqlTransaction transaction)
+        {
+            var deletePlaylistQuery = "DELETE FROM Playlists WHERE Id = @playlistId";
+
+            using (var command = new MySqlCommand(deletePlaylistQuery, connection, transaction))
+            {
+                command.Parameters.AddWithValue("@playlistId", playlistId);
+                await command.ExecuteNonQueryAsync();
+            }
+        }
+
+        public async Task DeletePlaylistItemsAsync(int playlistId, MySqlConnection connection, MySqlTransaction transaction)
+        {
+            var deleteItemsQuery = "DELETE FROM PlaylistItems WHERE PlaylistId = @playlistId";
+
+            using (var command = new MySqlCommand(deleteItemsQuery, connection, transaction))
+            {
+                command.Parameters.AddWithValue("@playlistId", playlistId);
+                await command.ExecuteNonQueryAsync();
+            }
         }
     }
 }

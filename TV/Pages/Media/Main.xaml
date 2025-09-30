@@ -12,33 +12,46 @@
         <Grid.Resources>
             <ResourceDictionary Source="/Resources/Dictionary.xaml"/>
         </Grid.Resources>
-        
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Style="{StaticResource CardStyle}">
-            <Grid>
-                <TextBlock Text="🎵 Управление плейлистами" Style="{StaticResource PageHeaderStyle}"/>
+        <Border Grid.Row="0" Style="{StaticResource CardStyle}" Background="#F8FAFC" BorderBrush="#E2E8F0">
+            <Grid Margin="5">
+                <TextBlock Text="🎵 Управление плейлистами" 
+                          Style="{StaticResource PageHeaderStyle}"
+                          Foreground="#1E293B"/>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,0,0,0">
                     <Button Content="➕ Создать плейлист" Click="CreatePlaylist" 
-                        Style="{StaticResource ModernButton}" Background="#10B981"/>
-                    <Button Content="🗑️ Удалить выбранные" Click="DeleteSelectedPlaylists" 
-                        Style="{StaticResource ModernButton}" Background="#EF4444" Margin="8,0,0,0"/>
+                            Style="{StaticResource ModernButton}" 
+                            Background="#065F46"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Padding="12,6"/>
+                    <Button Content="Удалить плейлист" Click="DeleteSelectedPlaylist" 
+                            Style="{StaticResource ModernButton}" 
+                            Background="#991B1B" 
+                            Foreground="White"
+                            BorderThickness="0"
+                            Padding="12,6"
+                            Margin="8,0,0,0"/>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1" Margin="0,10,0,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="250"/>
-                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="280"/>
+                <ColumnDefinition Width="8"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0" Padding="10">
+            <Border Grid.Column="0" Style="{StaticResource CardStyle}" 
+                    Background="White" BorderBrush="#E2E8F0" BorderThickness="1"
+                    CornerRadius="8" Padding="0">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -46,32 +59,48 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Text="Мои плейлисты" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                    <Border Grid.Row="0" Background="#F8FAFC" Padding="12,10" 
+                            CornerRadius="8,8,0,0" BorderThickness="0,0,0,1" BorderBrush="#E2E8F0">
+                        <TextBlock Text="📂 Мои плейлисты" FontWeight="SemiBold" Foreground="#374151"/>
+                    </Border>
 
                     <ListView Grid.Row="1" x:Name="playlistsListView" 
-                          SelectionChanged="Playlist_Selected"
-                          BorderThickness="0" Background="Transparent"
-                          ItemsSource="{Binding Playlists}">
+                              SelectionChanged="Playlist_Selected"
+                              BorderThickness="0" Background="Transparent"
+                              ItemsSource="{Binding Playlists}"
+                              ItemContainerStyle="{StaticResource ModernListViewItem}"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              Padding="8">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <Border Padding="8,6" Background="Transparent" CornerRadius="4">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
 
-                                        <StackPanel Grid.Column="0">
-                                            <TextBlock Text="{Binding Name}" FontWeight="Medium"/>
-                                            <TextBlock Text="{Binding ItemCount, StringFormat='{}Элементов: {0}'}" 
-                                                   FontSize="11" Foreground="#666"/>
-                                        </StackPanel>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="{Binding Name}" 
+                                                   FontWeight="SemiBold" 
+                                                   FontSize="13"
+                                                   Foreground="#1F2937"/>
+                                        <TextBlock Text="{Binding ItemCount, StringFormat='{}Элементов: {0}'}" 
+                                                   FontSize="11" 
+                                                   Foreground="#6B7280"
+                                                   Margin="0,2,0,0"/>
+                                    </StackPanel>
 
-                                        <TextBlock Grid.Column="1" Text="{Binding Duration}" 
-                                               FontSize="11" Foreground="#666" 
-                                               VerticalAlignment="Center"/>
-                                    </Grid>
-                                </Border>
+                                    <Border Grid.Column="1" 
+                                            Background="#F3F4F6" 
+                                            CornerRadius="4" 
+                                            Padding="4,2"
+                                            VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Duration}" 
+                                                   FontSize="10" 
+                                                   Foreground="#4B5563" 
+                                                   FontWeight="Medium"/>
+                                    </Border>
+                                </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
@@ -79,9 +108,12 @@
                 </Grid>
             </Border>
 
-            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="Transparent"/>
+            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" 
+                         Background="Transparent"/>
 
-            <Border Grid.Column="2" Style="{StaticResource CardStyle}" Margin="0" Padding="0">
+            <Border Grid.Column="2" Style="{StaticResource CardStyle}" 
+                    Background="White" BorderBrush="#E2E8F0" BorderThickness="1"
+                    CornerRadius="8" Padding="0">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -89,35 +121,149 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <Border Grid.Row="0" Background="#F8F9FA" Padding="10" CornerRadius="6,6,0,0">
+                    <Border Grid.Row="0" Background="#F8FAFC" Padding="15,12" 
+                            CornerRadius="8,8,0,0" BorderThickness="0,0,0,1" BorderBrush="#E2E8F0">
                         <Grid>
-                            <TextBlock x:Name="currentPlaylistName" Text="Выберите плейлист" 
-                                   FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="currentPlaylistName" 
+                                       Text="Выберите плейлист" 
+                                       FontWeight="SemiBold" 
+                                       Foreground="#374151"
+                                       VerticalAlignment="Center"/>
 
-                            <Button Content="✏️ Переименовать" Click="RenamePlaylist" 
-                                    Style="{StaticResource ModernButton}" Background="#6B7280" Width="auto" HorizontalAlignment="Right" />
+                            <Button Content="✏️ Переименовать" 
+                                    Click="RenamePlaylist" 
+                                    Style="{StaticResource ModernButton}" 
+                                    Background="#6B7280"
+                                    Foreground="White"
+                                    BorderThickness="0"
+                                    Padding="10,5"
+                                    HorizontalAlignment="Right" />
                         </Grid>
                     </Border>
 
                     <DataGrid Grid.Row="1" x:Name="playlistContentGrid" 
-                          AutoGenerateColumns="False" IsReadOnly="True"
-                          HeadersVisibility="Column" BorderThickness="0">
+                              AutoGenerateColumns="False" 
+                              IsReadOnly="True"
+                              HeadersVisibility="Column" 
+                              BorderThickness="0"
+                              Background="White"
+                              RowStyle="{StaticResource ModernDataGridRow}"
+                              CellStyle="{StaticResource ModernDataGridCell}"
+                              RowHeight="32"
+                              VerticalGridLinesBrush="#F3F4F6"
+                              HorizontalGridLinesBrush="Transparent"
+                              BorderBrush="#E5E7EB"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Auto">
+
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Background" Value="#F8FAFC"/>
+                                <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                <Setter Property="BorderBrush" Value="#E2E8F0"/>
+                                <Setter Property="Foreground" Value="#374151"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="Padding" Value="8,8"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
+
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="#" Binding="{Binding Order}" Width="40"/>
-                            <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="180*"/>
-                            <DataGridTextColumn Header="Тип" Binding="{Binding Type}" Width="90"/>
-                            <DataGridTextColumn Header="Длительность" Binding="{Binding Duration}" Width="90"/>
-                            <DataGridTextColumn Header="Размер" Binding="{Binding Size}" Width="80"/>
-                            <DataGridTemplateColumn Header="Действия" Width="100">
+                            <DataGridTextColumn Header="#" Binding="{Binding Order}" Width="40">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        <Setter Property="TextAlignment" Value="Center"/>
+                                        <Setter Property="Foreground" Value="#6B7280"/>
+                                        <Setter Property="FontSize" Value="11"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="*" MinWidth="150">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="TextAlignment" Value="Left"/>
+                                        <Setter Property="Foreground" Value="#1F2937"/>
+                                        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <DataGridTextColumn Header="Тип" Binding="{Binding Type}" Width="70" MinWidth="60">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        <Setter Property="TextAlignment" Value="Center"/>
+                                        <Setter Property="Foreground" Value="#6B7280"/>
+                                        <Setter Property="FontSize" Value="11"/>
+                                        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <DataGridTextColumn Header="Длительн." Binding="{Binding Duration}" Width="90" MinWidth="80">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        <Setter Property="TextAlignment" Value="Center"/>
+                                        <Setter Property="Foreground" Value="#6B7280"/>
+                                        <Setter Property="FontSize" Value="11"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <DataGridTextColumn Header="Размер" Binding="{Binding FormattedSize}" Width="80" MinWidth="70">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        <Setter Property="TextAlignment" Value="Center"/>
+                                        <Setter Property="Foreground" Value="#6B7280"/>
+                                        <Setter Property="FontSize" Value="11"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <DataGridTemplateColumn Header="Действия" Width="110" MinWidth="100">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Button Content="▲" Click="MoveItemUp" Tag="{Binding Id}"
-                                                Style="{StaticResource ModernIconButton}" Background="#6B7280"/>
-                                            <Button Content="▼" Click="MoveItemDown" Tag="{Binding Id}"
-                                                Style="{StaticResource ModernIconButton}" Background="#6B7280" Margin="2,0"/>
-                                            <Button Content="🗑️" Click="RemoveItem" Tag="{Binding Id}"
-                                                Style="{StaticResource ModernIconButton}" Background="#EF4444" Margin="2,0"/>
+                                        <StackPanel Orientation="Horizontal" 
+                                                    VerticalAlignment="Center"
+                                                    HorizontalAlignment="Center">
+                                            <Button Content="▲" 
+                                                    Click="MoveItemUp" 
+                                                    Tag="{Binding Id}"
+                                                    Style="{StaticResource ModernIconButton}" 
+                                                    Background="#6B7280"
+                                                    Width="22" 
+                                                    Height="22"
+                                                    FontSize="9"
+                                                    ToolTip="Поднять вверх"/>
+                                            <Button Content="▼" 
+                                                    Click="MoveItemDown" 
+                                                    Tag="{Binding Id}"
+                                                    Style="{StaticResource ModernIconButton}" 
+                                                    Background="#6B7280" 
+                                                    Width="22" 
+                                                    Height="22"
+                                                    FontSize="9"
+                                                    Margin="2,0,0,0"
+                                                    ToolTip="Опустить вниз"/>
+                                            <Button Content="🗑️" 
+                                                    Click="RemoveItem" 
+                                                    Tag="{Binding Id}"
+                                                    Style="{StaticResource ModernIconButton}" 
+                                                    Background="#DC2626" 
+                                                    Width="22" 
+                                                    Height="22"
+                                                    FontSize="9"
+                                                    Margin="2,0,0,0"
+                                                    ToolTip="Удалить"/>
                                         </StackPanel>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -125,14 +271,32 @@
                         </DataGrid.Columns>
                     </DataGrid>
 
-                    <Border Grid.Row="2" Background="#F8F9FA" Padding="5" CornerRadius="0,0,6,6">
+                    <Border Grid.Row="2" Background="#F8FAFC" Padding="12,8" 
+                            CornerRadius="0,0,8,8" BorderThickness="0,1,0,0" BorderBrush="#E2E8F0">
                         <StackPanel Orientation="Horizontal">
-                            <Button Content="📁 Добавить файлы" Click="AddMediaFiles" 
-                                Style="{StaticResource ModernButton}" Background="#10B981"/>
-                            <Button Content="🌐 Добавить URL" Click="AddWebContent" 
-                                Style="{StaticResource ModernButton}" Background="#3B82F6" Margin="5,0"/>
-                            <Button Content="⏱️ Настройки времени" Click="ConfigureTiming" 
-                                Style="{StaticResource ModernButton}" Background="#6B7280" Margin="5,0"/>
+                            <Button Content="📁 Добавить файлы" 
+                                    Click="AddMediaFiles" 
+                                    Style="{StaticResource ModernButton}" 
+                                    Background="#065F46"
+                                    Foreground="White"
+                                    BorderThickness="0"
+                                    Padding="12,6"/>
+                            <Button Content="🌐 Добавить URL" 
+                                    Click="AddWebContent" 
+                                    Style="{StaticResource ModernButton}" 
+                                    Background="#374151" 
+                                    Foreground="White"
+                                    BorderThickness="0"
+                                    Padding="12,6"
+                                    Margin="8,0,0,0"/>
+                            <Button Content="⏱️ Настройки времени" 
+                                    Click="ConfigureTiming" 
+                                    Style="{StaticResource ModernButton}" 
+                                    Background="#6B7280" 
+                                    Foreground="White"
+                                    BorderThickness="0"
+                                    Padding="12,6"
+                                    Margin="8,0,0,0"/>
                         </StackPanel>
                     </Border>
                 </Grid>

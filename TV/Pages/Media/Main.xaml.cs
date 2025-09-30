@@ -1,18 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using TV.Classes;
 using TV.Classes.ViewModels;
 
@@ -172,6 +161,52 @@ namespace TV.Pages.Media
         private void ConfigureTiming(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private async void DeleteSelectedPlaylist(object sender, RoutedEventArgs e)
+        {
+            if (selectedPlaylist == null)
+                return;
+
+            var result = MessageBox.Show(
+                $"Вы уверены, что хотите удалить плейлист {selectedPlaylist.Name}?\n\n" +
+                "Это действие нельзя отменить.",
+                "Подтверждение удаления",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            playlistsListView.SelectionChanged -= Playlist_Selected;
+
+            try
+            {
+                var success = await viewModel.DeletePlaylistAsync(selectedPlaylist);
+
+                if (success)
+                {
+                    MessageBox.Show($"Плейлисты успешно удалены", "Успех",
+                                  MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    playlistsListView.SelectedItem = null;
+                    selectedPlaylist = null;
+
+                    await viewModel.LoadPlaylistsAsync();
+
+                    playlistContentGrid.ItemsSource = null;
+                    currentPlaylistName.Text = "Выберите плейлист";
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при удалении: {ex.Message}", "Ошибка",
+                              MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                playlistsListView.SelectionChanged += Playlist_Selected;
+            }
         }
     }
 }

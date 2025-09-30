@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using TV.Classes;
+using TV.Classes.Common;
+using TV.Windows;
 
 namespace TV.Pages
 {
@@ -15,16 +18,34 @@ namespace TV.Pages
     {
 
         private MainViewModel viewModel;
+        private Classes.ViewModels.PlaylistsViewModel playlistsViewModel;
         public Main()
         {
             InitializeComponent();
 
             viewModel = new MainViewModel();
+            playlistsViewModel = new Classes.ViewModels.PlaylistsViewModel();
+
             DataContext = viewModel;
 
             contentTypeCombo.SelectedIndex = 1;
 
             displaysGrid.ItemsSource = viewModel.Displays;
+
+            LoadPlaylists();
+        }
+
+        private async void LoadPlaylists()
+        {
+            try
+            {
+                var playlists = await playlistsViewModel.LoadPlaylistsAsync();
+               playlistCombo.ItemsSource = playlists;
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"Ошибка загрузки плейлистов: {ex.Message}");
+            }
         }
 
         private void DetectDisplays(object sender, RoutedEventArgs e)
@@ -50,51 +71,7 @@ namespace TV.Pages
             viewModel.UpdateActiveDisplaysString();
         }
 
-        private void TestAllDisplays(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void StartAll(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void StopAll(object sender, RoutedEventArgs e)
-        {
-            
-        }
-
-        private void StartDisplay(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void StopDisplay(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void ConfigureDisplay(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void StartPlaylistOnDisplay(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void StartMediaOnDisplay(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void StopDisplayPlayback(object sender, RoutedEventArgs e)
-        {
-
-        }
-
+        
         private void ContentType_Changed(object sender, SelectionChangedEventArgs e)
         {
             playlistPanel.Visibility = Visibility.Collapsed;
@@ -143,26 +120,95 @@ namespace TV.Pages
                 switch (contentType)
                 {
                     case "Плейлист":
-                        display.CurrentContent = playlistCombo.Text;
-                        display.ContentType = "Плейлист";
+                        if (playlistCombo.SelectedItem is Playlist selectedPlaylist)
+                        {
+                            var player = new DisplayPlayer(display, selectedPlaylist);
+                            player.StartPlayback();
+
+                            display.CurrentContent = selectedPlaylist.Name;
+                            display.ContentType = "Плейлист";
+                            display.Status = "Воспроизведение плейлиста";
+                        }
                         break;
 
                     case "Медиафайл":
-                        display.CurrentContent = mediaFilePath.Text;
-                        display.ContentType = "Медиа";
+                        string mediaPath = mediaFilePath.Text;
+                        if (!string.IsNullOrEmpty(mediaPath))
+                        {
+                            var contentItem = new ContentItem
+                            {
+                                Name = Path.GetFileNameWithoutExtension(mediaPath),
+                                FilePath = mediaPath,
+                                Type = GetMediaType(Path.GetExtension(mediaPath).ToLower().TrimStart('.'))
+                            };
+
+                            var mediaWindow = new ContentToDisplay(contentItem, display);
+                            PositionWindowOnDisplay(mediaWindow, display);
+                            mediaWindow.Show();
+
+                            display.CurrentContent = mediaPath;
+                            display.ContentType = "Медиа";
+                            display.Status = "Контент назначен";
+                        }
                         break;
 
                     case "Веб-страница":
-                        display.CurrentContent = webUrlTextBox.Text;
-                        display.ContentType = "Веб";
+                        string webUrl = webUrlTextBox.Text;
+                        if (!string.IsNullOrEmpty(webUrl))
+                        {
+                            var contentItem = new ContentItem
+                            {
+                                Name = "Веб-контент",
+                                FilePath = webUrl,
+                                Type = "web"
+                            };
+
+                            var webWindow = new ContentToDisplay(contentItem, display);
+                            PositionWindowOnDisplay(webWindow, display);
+                            webWindow.Show();
+
+                            display.CurrentContent = webUrl;
+                            display.ContentType = "Веб";
+                            display.Status = "Контент назначен";
+                        }
                         break;
                 }
+            }
+        }
+        
 
-                display.Status = "Контент назначен";
+        private string GetMediaType(string extension)
+        {
+            switch (extension)
+            {
+                case "mp4":
+                case "avi":
+                case "mkv":
+                case "mov":
+                case "wmv":
+                case "flv":
+                case "webm":
+                    return "video";
 
-                Windows.ContentToDisplay contentToDisplay = new Windows.ContentToDisplay(display);
-                PositionWindowOnDisplay(contentToDisplay, display);
-                contentToDisplay.Show();
+                case "mp3":
+                case "wav":
+                case "ogg":
+                case "flac":
+                case "aac":
+                case "wma":
+                    return "audio";
+
+                case "jpg":
+                case "jpeg":
+                case "png":
+                case "gif":
+                case "bmp":
+                case "tiff":
+                case "webp":
+                    return "image";
+
+                default:
+                    return "unknown";
             }
         }
 
@@ -210,6 +256,51 @@ namespace TV.Pages
             window.WindowState = WindowState.Normal;
             window.ResizeMode = ResizeMode.NoResize;
             window.Topmost = true; 
+        }
+
+        private void TestAllDisplays(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void StartAll(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void StopAll(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void StartDisplay(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void StopDisplay(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void ConfigureDisplay(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void StartPlaylistOnDisplay(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void StartMediaOnDisplay(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void StopDisplayPlayback(object sender, RoutedEventArgs e)
+        {
+
         }
 
         private void PreviewDisplay(object sender, RoutedEventArgs e)

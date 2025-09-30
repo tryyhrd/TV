@@ -23,11 +23,11 @@
         <Border Grid.Row="0" Style="{StaticResource CardStyle}">
             <StackPanel Orientation="Horizontal">
                 <Button Content="🔄 Обнаружить дисплеи" Click="DetectDisplays" 
-        Style="{StaticResource ModernButton}" Background="#374151"/>
+                        Style="{StaticResource ModernButton}" Background="#374151"/>
                 <Button Content="▶️ Запустить выбранные" Click="StartAll" 
-        Style="{StaticResource ModernButton}" Background="#065F46"/>
+                        Style="{StaticResource ModernButton}" Background="#065F46"/>
                 <Button Content="⏹️ Остановить выбранные" Click="StopAll" 
-        Style="{StaticResource ModernButton}" Background="#991B1B"/>
+                        Style="{StaticResource ModernButton}" Background="#991B1B"/>
             </StackPanel>
         </Border>
 
@@ -45,18 +45,18 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Text="Тип контента:" VerticalAlignment="Center" 
-                      Margin="0,0,12,0" FontWeight="SemiBold" Grid.Row="0"/>
+                           Margin="0,0,12,0" FontWeight="SemiBold" Grid.Row="0"/>
 
                 <ComboBox Grid.Column="1" Grid.Row="0" x:Name="contentTypeCombo" 
-                     VerticalAlignment="Center" VerticalContentAlignment="Center" Height="28" FontSize="13"
-                     SelectionChanged="ContentType_Changed">
+                          VerticalAlignment="Center" VerticalContentAlignment="Center" Height="28" FontSize="13"
+                          SelectionChanged="ContentType_Changed">
                     <ComboBoxItem Content="📋 Плейлист"/>
                     <ComboBoxItem Content="🎬 Медиафайл"/>
                     <ComboBoxItem Content="🌐 Веб-страница"/>
                 </ComboBox>
 
                 <StackPanel Grid.Column="2" Grid.Row="0" x:Name="playlistPanel" Orientation="Horizontal" 
-           VerticalAlignment="Center" Margin="12,0">
+                            VerticalAlignment="Center" Margin="12,0">
                     <TextBlock Text="Плейлист:" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold"/>
                     <ComboBox x:Name="playlistCombo" DisplayMemberPath="Name" Width="200" Height="28" VerticalContentAlignment="Center"/>
                 </StackPanel>
@@ -67,95 +67,116 @@
                     <TextBox x:Name="mediaFilePath" Width="180" Height="28" VerticalAlignment="Center"
                              ToolTip="Путь к медиафайлу" VerticalContentAlignment="Center"/>
                     <Button Content="..." Click="BrowseMediaFile" Height="28" Width="28" Margin="8,0,0,0"
-           ToolTip="Выбрать файл" Style="{StaticResource ModernButton}" Background="#6C757D"/>
+                            ToolTip="Выбрать файл" Style="{StaticResource ModernButton}" Background="#6C757D"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Grid.Row="0" x:Name="webUrlPanel" Orientation="Horizontal" 
-           VerticalAlignment="Center" Margin="12,0" Visibility="Collapsed">
+                            VerticalAlignment="Center" Margin="12,0" Visibility="Collapsed">
                     <TextBlock Text="URL:" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold"/>
                     <TextBox x:Name="webUrlTextBox" Text="https://" Width="200" Height="28"
-            ToolTip="URL веб-страницы" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                             ToolTip="URL веб-страницы" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
                 </StackPanel>
 
                 <Button Grid.Column="3" Grid.Row="0" Content="Применить к выбранным" 
-                   Click="ApplyContentToSelected" Style="{StaticResource ModernButton}"
-                   Background="#6C757D" Width="auto" Height="28"/>
+                        Click="ApplyContentToSelected" Style="{StaticResource ModernButton}"
+                        Background="#6C757D" Width="auto" Height="28"/>
 
                 <TextBlock Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="4" 
-                      x:Name="selectionInfo" Text="Выберите дисплеи в таблице ниже" 
-                      Margin="0,8,0,0" FontStyle="Italic" Foreground="#666"/>
+                           x:Name="selectionInfo" Text="Выберите дисплеи в таблице ниже" 
+                           Margin="0,8,0,0" FontStyle="Italic" Foreground="#666"/>
             </Grid>
         </Border>
 
         <Border Grid.Row="2" Style="{StaticResource CardStyle}" Margin="0" Padding="0">
             <DataGrid x:Name="displaysGrid" IsReadOnly="True" AutoGenerateColumns="False" 
-              ItemsSource="{Binding Displays}" HeadersVisibility="Column" BorderThickness="0"
-              Background="Transparent" RowBackground="White" 
-              AlternatingRowBackground="Transparent"
-              HorizontalScrollBarVisibility="Auto"
-              VerticalScrollBarVisibility="Auto">
+                      ItemsSource="{Binding Displays}" HeadersVisibility="Column" BorderThickness="0"
+                      Background="White"
+                      RowStyle="{StaticResource ModernDataGridRow}"
+                      CellStyle="{StaticResource ModernDataGridCell}"
+                      VerticalGridLinesBrush="#F3F4F6"
+                      HorizontalGridLinesBrush="Transparent"
+                      BorderBrush="#E5E7EB"
+                      HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Auto">
 
-                <DataGrid.RowStyle>
-                    <Style TargetType="DataGridRow">
-                        <Setter Property="VerticalContentAlignment" Value="Center"/>
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                        <Setter Property="Height" Value="32.5"/>
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="#F8FAFC"/>
+                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                        <Setter Property="BorderBrush" Value="#E2E8F0"/>
+                        <Setter Property="Foreground" Value="#374151"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                        <Setter Property="Padding" Value="8,8"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
                     </Style>
-                </DataGrid.RowStyle>
-                
+                </DataGrid.ColumnHeaderStyle>
+
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Header="✓" Width="50" CanUserResize="False">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center"
-                              IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              ToolTip="Выбрать для применения контента"/>
+                                          IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          ToolTip="Выбрать для применения контента"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
 
-                    <DataGridTextColumn Header="Дисплей" Binding="{Binding Name}" Width="100*" MinWidth="60">
+                    <DataGridTextColumn Header="Дисплей" Binding="{Binding Name}" Width="*" MinWidth="100">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="VerticalAlignment" Value="Center"/>
                                 <Setter Property="TextAlignment" Value="Left"/>
-                                <Setter Property="Padding" Value="2.5, 0"/>
+                                <Setter Property="Foreground" Value="#1F2937"/>
+                                <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
 
-                    <DataGridTextColumn Header="Разрешение" Binding="{Binding Resolution}" Width="80*" MinWidth="80">
+                    <DataGridTextColumn Header="Разрешение" Binding="{Binding Resolution}" Width="100" MinWidth="80">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
                                 <Setter Property="TextAlignment" Value="Center"/>
+                                <Setter Property="Foreground" Value="#6B7280"/>
+                                <Setter Property="FontSize" Value="11"/>
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
 
-                    <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="80*" MinWidth="80">
+                    <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="90" MinWidth="80">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
                                 <Setter Property="TextAlignment" Value="Center"/>
+                                <Setter Property="Foreground" Value="#6B7280"/>
+                                <Setter Property="FontSize" Value="11"/>
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
 
-                    <DataGridTextColumn Header="Тип контента" Binding="{Binding ContentType}" Width="120*" MinWidth="100">
+                    <DataGridTextColumn Header="Тип контента" Binding="{Binding ContentType}" Width="120" MinWidth="100">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
                                 <Setter Property="TextAlignment" Value="Center"/>
+                                <Setter Property="Foreground" Value="#6B7280"/>
+                                <Setter Property="FontSize" Value="11"/>
+                                <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
 
-                    <DataGridTextColumn Header="Текущий контент" Binding="{Binding CurrentContent}" Width="200*" MinWidth="150">
+                    <DataGridTextColumn Header="Текущий контент" Binding="{Binding CurrentContent}" Width="*" MinWidth="150">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="VerticalAlignment" Value="Center"/>
-                                <Setter Property="TextAlignment" Value="Center"/>
+                                <Setter Property="TextAlignment" Value="Left"/>
+                                <Setter Property="Foreground" Value="#1F2937"/>
+                                <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
@@ -163,27 +184,27 @@
                     <DataGridTemplateColumn Header="Действия" Width="120" CanUserResize="False">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="2">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                                     <Button Click="StartDisplay" Tag="{Binding Id}" 
                                             ToolTip="Запустить воспроизведение"
                                             Style="{StaticResource ModernIconButton}"
                                             Background="#10B981"
-                                            Margin="1">
-                                        <Path Data="M8 5v14l11-7z" Fill="#E8F5E8" Stretch="Uniform"
+                                            Width="22" Height="22" Margin="1,0">
+                                        <Path Data="M8 5v14l11-7z" Fill="White" Stretch="Uniform"
                                               Width="10" Height="10"/>
                                     </Button>
 
                                     <Button Click="StopDisplay" Tag="{Binding Id}" 
                                             ToolTip="Остановить воспроизведение"
                                             Style="{StaticResource ModernIconButton}"
-                                            Background="#EF4444" Margin="1">
-                                        <Rectangle Fill="#FFEBEE" Width="10" Height="10" RadiusX="1" RadiusY="1"/>
+                                            Background="#EF4444" Width="22" Height="22" Margin="1,0">
+                                        <Rectangle Fill="White" Width="8" Height="8" RadiusX="1" RadiusY="1"/>
                                     </Button>
 
                                     <Button Click="ConfigureDisplay" Tag="{Binding Id}" 
                                             ToolTip="Настройки дисплея"
                                             Style="{StaticResource ModernIconButton}"
-                                            Background="#6B7280" Margin="1">
+                                            Background="#6B7280" Width="22" Height="22" Margin="1,0">
                                         <Path Data="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" 
                                               Fill="White" Stretch="Uniform" Width="10" Height="10"/>
                                     </Button>
@@ -196,13 +217,13 @@
         </Border>
 
         <Border Grid.Row="3" Background="#F8F9FA" BorderBrush="#E0E0E0" BorderThickness="1,0,0,0" 
-            Padding="10,8" CornerRadius="0,0,6,6">
+                Padding="10,8" CornerRadius="0,0,6,6">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="{Binding ActiveDisplaysString}" FontWeight="SemiBold" 
-                      Margin="0,0,20,0" VerticalAlignment="Center"/>
+                           Margin="0,0,20,0" VerticalAlignment="Center"/>
                 <Rectangle Width="1" Height="20" Fill="#E0E0E0" Margin="0,0,20,0"/>
                 <TextBlock x:Name="displaysStatus" Text="Готово" VerticalAlignment="Center" 
-                      Foreground="#666" FontStyle="Italic"/>
+                           Foreground="#666" FontStyle="Italic"/>
             </StackPanel>
         </Border>
     </Grid>

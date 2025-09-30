@@ -55,7 +55,8 @@
                          BorderBrush="#D1D5DB"
                          Background="#F9FAFB"
                          TextChanged="PlaylistName_TextChanged"
-                         MaxLength="100"/>
+                         MaxLength="100"
+                         VerticalContentAlignment="Center"/>
 
                 <TextBlock x:Name="validationText" 
                            Text="Введите название плейлиста" 
@@ -80,7 +81,8 @@
                         Click="Create"
                         Style="{StaticResource ModernButton}" 
                         Background="#10B981"
-                        Width="80"
+                        MinWidth="80"
+                        Width="Auto"
                         Margin="10,0,0,0"
                         IsEnabled="False"/>
             </StackPanel>
