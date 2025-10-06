@@ -13,7 +13,7 @@ namespace TV.Pages.Media
     /// </summary>
     public partial class CreatePlaylist : Page
     {
-        private string connectionString = "server=localhost;port=3306;database=TV;uid=root;pwd=;charset=utf8;";
+        private string connectionString = "server=localhost;port=3306;database=TVDisplay;uid=root;pwd=;charset=utf8;";
         public CreatePlaylist()
         {
             InitializeComponent();
@@ -26,7 +26,36 @@ namespace TV.Pages.Media
 
         private void PlaylistName_TextChanged(object sender, TextChangedEventArgs e)
         {
-            ValidateInput();
+            string playlistName = playlistNameTextBox.Text.Trim();
+
+            if (string.IsNullOrEmpty(playlistName))
+            {
+                validationText.Text = "Введите название плейлиста";
+                validationText.Foreground = new SolidColorBrush(
+                    Color.FromRgb(107, 114, 128));
+                createButton.IsEnabled = false;
+            }
+            else if (playlistName.Length < 5)
+            {
+                validationText.Text = "Название должно содержать минимум 5 символа";
+                validationText.Foreground = new SolidColorBrush(
+                    Color.FromRgb(239, 68, 68));
+                createButton.IsEnabled = false;
+            }
+            else if (playlistName.Length > 100)
+            {
+                validationText.Text = "Название не должно превышать 100 символов";
+                validationText.Foreground = new SolidColorBrush(
+                   Color.FromRgb(239, 68, 68));
+                createButton.IsEnabled = false;
+            }
+            else
+            {
+                validationText.Text = "✓ Название корректно";
+                validationText.Foreground = new SolidColorBrush(
+                    Color.FromRgb(34, 197, 94));
+                createButton.IsEnabled = true;
+            }
         }
 
         private async void Create(object sender, RoutedEventArgs e)
@@ -112,40 +141,6 @@ namespace TV.Pages.Media
                     ShowErrorMessage($"Ошибка: {ex.Message}");
                     return false;
                 }
-            }
-        }
-
-        private void ValidateInput()
-        {
-            string playlistName = playlistNameTextBox.Text.Trim();
-
-            if (string.IsNullOrEmpty(playlistName))
-            {
-                validationText.Text = "Введите название плейлиста";
-                validationText.Foreground = new SolidColorBrush(
-                    Color.FromRgb(107, 114, 128)); 
-                createButton.IsEnabled = false;
-            }
-            else if (playlistName.Length < 5)
-            {
-                validationText.Text = "Название должно содержать минимум 5 символа";
-                validationText.Foreground = new SolidColorBrush(
-                    Color.FromRgb(239, 68, 68)); 
-                createButton.IsEnabled = false;
-            }
-            else if (playlistName.Length > 100)
-            {
-                validationText.Text = "Название не должно превышать 100 символов";
-                validationText.Foreground = new SolidColorBrush(
-                   Color.FromRgb(239, 68, 68));
-                createButton.IsEnabled = false;
-            }
-            else
-            {
-                validationText.Text = "✓ Название корректно";
-                validationText.Foreground = new SolidColorBrush(
-                    Color.FromRgb(34, 197, 94));
-                createButton.IsEnabled = true;
             }
         }
 

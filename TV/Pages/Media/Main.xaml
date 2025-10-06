@@ -149,7 +149,6 @@
                               Background="White"
                               RowStyle="{StaticResource ModernDataGridRow}"
                               CellStyle="{StaticResource ModernDataGridCell}"
-                              RowHeight="32"
                               VerticalGridLinesBrush="#F3F4F6"
                               HorizontalGridLinesBrush="Transparent"
                               BorderBrush="#E5E7EB"
@@ -217,7 +216,7 @@
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
 
-                            <DataGridTextColumn Header="Размер" Binding="{Binding FormattedSize}" Width="80" MinWidth="70">
+                            <DataGridTextColumn Header="Размер" Binding="{Binding Size}" Width="80" MinWidth="70">
                                 <DataGridTextColumn.ElementStyle>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="VerticalAlignment" Value="Center"/>

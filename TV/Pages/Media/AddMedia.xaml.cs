@@ -30,7 +30,7 @@ namespace TV.Pages.Media
             {
                 await connection.OpenAsync();
 
-                var maxOrderQuery = "SELECT COALESCE(MAX(OrderIndex), 0) FROM PlaylistItems WHERE PlaylistId = @playlistId";
+                var maxOrderQuery = "SELECT COALESCE(MAX(`Order`), 0) FROM PlaylistItems WHERE PlaylistId = @playlistId";
                 using (var maxOrderCommand = new MySqlCommand(maxOrderQuery, connection))
                 {
                     maxOrderCommand.Parameters.AddWithValue("@playlistId", playlistId);
@@ -38,7 +38,7 @@ namespace TV.Pages.Media
                     var orderIndex = currentMaxOrder + 1;
 
                     var insertQuery = @"INSERT INTO PlaylistItems 
-                                    (PlaylistId, OrderIndex, Name, Type, Duration, Size, FilePath) 
+                                    (PlaylistId, `Order`, Name, Type, Duration, Size, FilePath) 
                                     VALUES (@playlistId, @orderIndex, @name, @type, @duration, @size, @filePath)";
 
                     foreach (var file in files)
@@ -71,33 +71,28 @@ namespace TV.Pages.Media
 
             if (openFileDialog.ShowDialog() == true)
             {
-                ProcessFiles(openFileDialog.FileNames);
-            }
-        }
+                var order = 1;
 
-        private void ProcessFiles(string[] filePaths)
-        {
-            var order = 1;
-            
-            foreach (var filePath in filePaths)
-            {
-               var fileInfo = new FileInfo(filePath);
-               var extension = Path.GetExtension(filePath).ToLower().TrimStart('.');
-               var mediaType = GetMediaType(extension);
-
-                selectedFiles.Add(new ContentItem
+                foreach (var filePath in openFileDialog.FileNames)
                 {
-                   Name = Path.GetFileNameWithoutExtension(filePath),
-                   Type = mediaType,
-                   Order = order,
-                   FilePath = filePath,
-                   Size = fileInfo.Length
-                });
-                
-                order++;
-            }
+                    var fileInfo = new FileInfo(filePath);
+                    var extension = Path.GetExtension(filePath).ToLower().TrimStart('.');
+                    var mediaType = GetMediaType(extension);
 
-            UpdateUI();
+                    selectedFiles.Add(new ContentItem
+                    {
+                        Name = Path.GetFileNameWithoutExtension(filePath),
+                        Type = mediaType,
+                        Order = order,
+                        FilePath = filePath,
+                        Size = fileInfo.Length
+                    });
+
+                    order++;
+                }
+
+                UpdateUI();
+            }
         }
 
         private static readonly Dictionary<string, string> mediaTypes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -127,11 +122,6 @@ namespace TV.Pages.Media
 
             emptyFilesText.Visibility = selectedFiles.Any() ? Visibility.Collapsed : Visibility.Visible;
 
-            UpdateSelectionInfo();
-        }
-
-        private void UpdateSelectionInfo()
-        {
             if (selectedFiles.Any())
             {
                 var totalSize = selectedFiles.Sum(f => f.Size);

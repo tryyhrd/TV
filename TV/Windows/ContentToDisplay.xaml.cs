@@ -13,24 +13,24 @@ namespace TV.Windows
     /// </summary>
     public partial class ContentToDisplay : Window
     {
-        public ContentToDisplay(ContentItem contentItem, Display display)
+        public ContentToDisplay(ContentItem contentItem, Classes.Display.Display display)
         {
             InitializeComponent();
 
             SetupWindow(contentItem, display); 
         }
 
-        private void SetupWindow(ContentItem contentItem, Display targetDisplay)
+        private void SetupWindow(ContentItem contentItem, Classes.Display.Display targetDisplay)
         {
-            this.WindowStyle = WindowStyle.None;
-            this.WindowState = WindowState.Maximized;
-            this.Topmost = true;
+            WindowStyle = WindowStyle.None;
+            WindowState = WindowState.Maximized;
+            Topmost = true;
 
             var screen = targetDisplay.Screen;
-            this.Left = screen.Bounds.Left;
-            this.Top = screen.Bounds.Top;
-            this.Width = screen.Bounds.Width;
-            this.Height = screen.Bounds.Height;
+            Left = screen.Bounds.Left;
+            Top = screen.Bounds.Top;
+            Width = screen.Bounds.Width;
+            Height = screen.Bounds.Height;
 
             LoadContent(contentItem);
         }

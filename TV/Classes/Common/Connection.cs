@@ -6,7 +6,7 @@ namespace TV.Classes.Common
 {
     public class Connection
     {
-        public static string connectionString = "server=localhost;port=3306;database=TV;uid=root;pwd=;charset=utf8;";
+        public static string connectionString = "server=localhost;port=3306;database=TVDisplay;uid=root;pwd=;charset=utf8;";
 
         public async Task<List<Playlist>> GetPlaylistsAsync()
         {
@@ -16,7 +16,7 @@ namespace TV.Classes.Common
             {
                 await connection.OpenAsync();
 
-                var query = @"SELECT * FROM playlists";
+                var query = @"SELECT * FROM Playlists";
 
                 var command = new MySqlCommand(query, connection);
 
@@ -47,7 +47,7 @@ namespace TV.Classes.Common
 
             var query = @"SELECT * FROM PlaylistItems 
                      WHERE PlaylistId = @playlistId 
-                     ORDER BY OrderIndex ASC"
+                     ORDER BY `Order` ASC"
             ;
 
             var command = new MySqlCommand(query, connection);

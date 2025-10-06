@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace TV.Classes
+namespace TV.Classes.Display
 {
     public class Display: INotifyPropertyChanged
     {
@@ -10,6 +10,8 @@ namespace TV.Classes
         public string Resolution { get; set; }
         public string Status { get; set; } = "Неактивен";
         public Screen Screen { get; set; }
+
+        public bool IsPrimary { get; set; }
 
         private bool _isSelected;
         private string _currentContent = "Нет";

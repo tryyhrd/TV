@@ -2,16 +2,18 @@
 using System.Linq;
 using TV.Windows;
 
-namespace TV.Classes
+namespace TV.Classes.Display
 {
     public class DisplayPlayer
     {
         private Display targetDisplay;
         private Playlist currentPlaylist;
-        private int currentItemIndex = 0;
-        private System.Windows.Threading.DispatcherTimer timer;
         private ContentToDisplay currentWindow;
 
+        private int currentItemIndex = 0;
+
+        private System.Windows.Threading.DispatcherTimer timer;
+        
         public DisplayPlayer(Display display, Playlist playlist)
         {
             targetDisplay = display;

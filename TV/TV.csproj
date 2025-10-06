@@ -113,8 +113,9 @@
     </ApplicationDefinition>
     <Compile Include="Classes\Common\Connection.cs" />
     <Compile Include="Classes\ContentItem.cs" />
-    <Compile Include="Classes\Display.cs" />
-    <Compile Include="Classes\DisplayPlayer.cs" />
+    <Compile Include="Classes\Display\Display.cs" />
+    <Compile Include="Classes\Display\DisplayContent.cs" />
+    <Compile Include="Classes\Display\DisplayPlayer.cs" />
     <Compile Include="Classes\ViewModels\MainViewModel.cs" />
     <Compile Include="Classes\Playlist.cs" />
     <Compile Include="Classes\ViewModels\PlaylistsViewModel.cs" />

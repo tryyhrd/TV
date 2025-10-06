@@ -112,7 +112,7 @@
                 </DataGrid.ColumnHeaderStyle>
 
                 <DataGrid.Columns>
-                    <DataGridTemplateColumn Header="✓" Width="50" CanUserResize="False">
+                    <DataGridTemplateColumn Header="✓" Width="40" CanUserResize="False">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <CheckBox VerticalAlignment="Center" HorizontalAlignment="Center"
@@ -122,7 +122,7 @@
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
 
-                    <DataGridTextColumn Header="Дисплей" Binding="{Binding Name}" Width="*" MinWidth="100">
+                    <DataGridTextColumn Header="Дисплей" Binding="{Binding Name}" Width="*" MinWidth="70">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="VerticalAlignment" Value="Center"/>
@@ -133,7 +133,7 @@
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
 
-                    <DataGridTextColumn Header="Разрешение" Binding="{Binding Resolution}" Width="100" MinWidth="80">
+                    <DataGridTextColumn Header="Разрешение" Binding="{Binding Resolution}" Width="90" MinWidth="70">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="VerticalAlignment" Value="Center"/>
@@ -145,7 +145,7 @@
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
 
-                    <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="90" MinWidth="80">
+                    <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="*" MinWidth="80">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="VerticalAlignment" Value="Center"/>
@@ -201,13 +201,13 @@
                                         <Rectangle Fill="White" Width="8" Height="8" RadiusX="1" RadiusY="1"/>
                                     </Button>
 
-                                    <Button Click="ConfigureDisplay" Tag="{Binding Id}" 
+                                    <!--<Button Click="ConfigureDisplay" Tag="{Binding Id}" 
                                             ToolTip="Настройки дисплея"
                                             Style="{StaticResource ModernIconButton}"
                                             Background="#6B7280" Width="22" Height="22" Margin="1,0">
                                         <Path Data="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" 
                                               Fill="White" Stretch="Uniform" Width="10" Height="10"/>
-                                    </Button>
+                                    </Button>-->
                                 </StackPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
