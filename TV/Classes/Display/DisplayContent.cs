@@ -26,7 +26,7 @@ namespace TV.Classes.Display
                     "DELETE FROM DisplayContent WHERE DisplayId = @DisplayId",
                     connection);
 
-                deleteCommand.Parameters.AddWithValue("@DisplayId", this.DisplayId);
+                deleteCommand.Parameters.AddWithValue("@DisplayId", DisplayId);
                 await deleteCommand.ExecuteNonQueryAsync();
 
                 var insertCommand = new MySqlCommand(@"INSERT INTO DisplayContent 
@@ -35,13 +35,13 @@ namespace TV.Classes.Display
                                                     (@DisplayId, @ContentType, @ContentValue, @DisplayName, @PlaylistId)",
                     connection);
 
-                insertCommand.Parameters.AddWithValue("@DisplayId", this.DisplayId);
-                insertCommand.Parameters.AddWithValue("@ContentType", this.ContentType);
-                insertCommand.Parameters.AddWithValue("@ContentValue", this.ContentValue);
-                insertCommand.Parameters.AddWithValue("@DisplayName", this.DisplayName);
+                insertCommand.Parameters.AddWithValue("@DisplayId", DisplayId);
+                insertCommand.Parameters.AddWithValue("@ContentType", ContentType);
+                insertCommand.Parameters.AddWithValue("@ContentValue", ContentValue);
+                insertCommand.Parameters.AddWithValue("@DisplayName", DisplayName);
 
                 if (Playlist != null)
-                    insertCommand.Parameters.AddWithValue("@PlaylistId", this.Playlist.Id);
+                    insertCommand.Parameters.AddWithValue("@PlaylistId", Playlist.Id);
                 else
                     insertCommand.Parameters.AddWithValue("@PlaylistId", DBNull.Value);
                 

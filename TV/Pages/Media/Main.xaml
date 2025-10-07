@@ -287,7 +287,7 @@
                                     Foreground="White"
                                     BorderThickness="0"
                                     Padding="12,6"
-                                    Margin="8,0,0,0"/>
+                                    Margin="0,0,0,0"/>
                             <Button Content="⏱️ Настройки времени" 
                                     Click="ConfigureTiming" 
                                     Style="{StaticResource ModernButton}" 

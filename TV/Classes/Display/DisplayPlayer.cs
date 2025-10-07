@@ -57,9 +57,12 @@ namespace TV.Classes.Display
         private void PlayNextItem()
         {
             currentItemIndex++;
+
             if (currentItemIndex >= currentPlaylist.Items.Count)
             {
                 currentItemIndex = 0;
+                StopPlayback();
+                return;
             }
 
             ShowCurrentItem();

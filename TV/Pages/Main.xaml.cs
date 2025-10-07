@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
@@ -21,16 +20,19 @@ namespace TV.Pages
         private MainViewModel viewModel;
         private Classes.ViewModels.PlaylistsViewModel playlistsViewModel;
 
-        private readonly Dictionary<int, Classes.Display.DisplayPlayer> activePlayers = new Dictionary<int, Classes.Display.DisplayPlayer>();
+        private readonly Dictionary<int, DisplayPlayer> activePlayers = new Dictionary<int, DisplayPlayer>();
         private readonly Dictionary<int, ContentToDisplay> activeWindows = new Dictionary<int, ContentToDisplay>();
 
         Microsoft.Win32.OpenFileDialog selectedFile;
+
+        private DateTime _lastPlaylistsErrorTime = DateTime.MinValue;
+        private DateTime _lastContentErrorTime = DateTime.MinValue;
         public Main()
         {
             InitializeComponent();
 
             viewModel = new MainViewModel();
-            playlistsViewModel = new Classes.ViewModels.PlaylistsViewModel();
+            playlistsViewModel = new Classes.ViewModels.PlaylistsViewModel(); 
 
             DataContext = viewModel;
             displaysGrid.ItemsSource = viewModel.Displays;
@@ -53,7 +55,7 @@ namespace TV.Pages
 
             for (int i = 0; i < screens.Length; i++)
             {
-                var display = new Classes.Display.Display()
+                var display = new Display()
                 {
                     Id = i,
                     Name = screens[i].DeviceName,
@@ -88,16 +90,23 @@ namespace TV.Pages
 
         private async void LoadContentToDisplays()
         {
-            foreach (var display in viewModel.Displays)
+            try
             {
-                var content = await Classes.Display.DisplayContent.LoadByDisplayIdAsync(display.Id);
-
-                if (content != null)
+                foreach (var display in viewModel.Displays)
                 {
-                    display.ContentType = content.ContentType;
-                    display.CurrentContent = content.ContentValue;
+                    var content = await DisplayContent.LoadByDisplayIdAsync(display.Id);
+
+                    if (content != null)
+                    {
+                        display.ContentType = content.ContentType;
+                        display.CurrentContent = content.ContentValue;
+                    }
                 }
             }
+            catch (Exception ex) 
+            {
+                System.Windows.MessageBox.Show($"Ошибка загрузки контента для плейлистов: {ex.Message}");
+            }          
         }
 
         
@@ -195,7 +204,7 @@ namespace TV.Pages
 
                         foreach (var display in selectedDisplays)
                         {
-                            var displayContent = new Classes.Display.DisplayContent()
+                            var displayContent = new DisplayContent()
                             {
                                 DisplayId = display.Id,
                                 ContentType = contentType,
@@ -204,14 +213,20 @@ namespace TV.Pages
                                 Playlist = selectedPlaylist,
                                 PlaylistId = selectedPlaylist.Id,
                             };
-
                             await displayContent.SaveToDatabaseAsync();
-                        }
 
+                            display.ContentType = contentType;
+                            display.CurrentContent = displayName;
+                            display.Status = "Плейлист установлен";
+                        }
                         break;
 
                     case 1:
-
+                        if (selectedFile == null)
+                        {
+                            ShowErrorMessage($"Файл не выбран");
+                            return;
+                        }
                         if (!File.Exists(selectedFile.FileName))
                         {
                             ShowErrorMessage($"Файл не существует: {selectedFile.SafeFileName}");
@@ -233,6 +248,24 @@ namespace TV.Pages
 
                         contentType = "Медиафайл";
                         displayName = Path.GetFileName(selectedFile.FileName);
+
+                        foreach (var display in selectedDisplays)
+                        {
+                            var displayContent = new DisplayContent()
+                            {
+                                DisplayId = display.Id,
+                                ContentType = contentType,
+                                ContentValue = selectedFile.FileName,
+                                DisplayName = selectedFile.SafeFileName,
+                                Playlist = null,
+                                PlaylistId = null
+                            };
+                            await displayContent.SaveToDatabaseAsync();
+
+                            display.ContentType = contentType;
+                            display.CurrentContent = displayName;
+                            display.Status = "Контент установлен";
+                        }
                         break;
 
                     case 2:
@@ -267,29 +300,13 @@ namespace TV.Pages
                             };
 
                             await displayContent.SaveToDatabaseAsync();
+
+                            display.ContentType = contentType;
+                            display.CurrentContent = displayName;
+                            display.Status = "Веб-страница установлена";
                         }
                         break;
                 }
-
-                foreach (var display in selectedDisplays)
-                {
-                    display.ContentType = contentType;
-                    display.CurrentContent = displayName;
-
-                    if (contentType == "Плейлист")
-                    {
-                        display.Status = "Плейлист установлен";
-                    }
-                    else if (contentType == "Медиафайл")
-                    {
-                        display.Status = "Контент установлен";
-                    }
-                    else if (contentType == "Веб-страница")
-                    {
-                        display.Status = "Веб-страница установлена";
-                    }
-                }
-
                 UpdateSelectionInfo();
 
                 displaysGrid.Items.Refresh();
@@ -302,7 +319,7 @@ namespace TV.Pages
             }
         }
 
-        private void ApplyContentToDisplay(Classes.Display.Display display, Classes.Display.DisplayContent displayContent)
+        private void ApplyContentToDisplay(Display display, DisplayContent displayContent)
         {
             try
             {
@@ -318,11 +335,9 @@ namespace TV.Pages
                 {
                     case "Плейлист":
 
-                        //var playlists = await new Classes.ViewModels.PlaylistsViewModel().LoadPlaylistsAsync();
-
                         if (displayContent.Playlist != null)
                         {
-                            var player = new Classes.Display.DisplayPlayer(display, displayContent.Playlist);
+                            var player = new DisplayPlayer(display, displayContent.Playlist);
                             activePlayers[display.Id] = player;
                             player.StartPlayback();
 
@@ -335,6 +350,7 @@ namespace TV.Pages
 
                     case "Медиафайл":
                         string mediaPath = displayContent.ContentValue ?? contentValue;
+
                         if (File.Exists(mediaPath))
                         {
                             var mediaContentItem = new ContentItem
@@ -342,7 +358,10 @@ namespace TV.Pages
                                 Name = Path.GetFileNameWithoutExtension(mediaPath),
                                 FilePath = mediaPath,
                                 Type = GetMediaType(Path.GetExtension(mediaPath))
+                                
                             };
+
+                            System.Windows.Forms.MessageBox.Show(mediaContentItem.Type.ToString());
 
                             var mediaWindow = new ContentToDisplay(mediaContentItem, display);
                             activeWindows[display.Id] = mediaWindow;
@@ -387,107 +406,6 @@ namespace TV.Pages
             }
         }
 
-        private string GetCurrentContentType()
-        {
-            switch (contentTypeCombo.SelectedIndex)
-            {
-                case 0:
-                    return "Плейлист";
-                case 1:
-                    return "Медиафайл";
-                case 2:
-                    return "Веб-страница";
-                default:
-                    return "Неизвестно";
-            }
-        }
-
-        private string GetCurrentContentValue()
-        {
-            switch (contentTypeCombo.SelectedIndex)
-            {
-                case 0:
-                    var playlist = playlistCombo.SelectedItem as Playlist;
-                    return playlist?.Name;
-                case 1:
-                    return mediaFilePath.Text;
-                case 2:
-                    return webUrlTextBox.Text;
-                default:
-                    return null;
-            }
-        }
-
-        private string GetContentDisplayName(string contentValue)
-        {
-            if (string.IsNullOrEmpty(contentValue))
-                return "Не указан";
-
-            switch (contentTypeCombo.SelectedIndex)
-            {
-                case 0:
-                    var playlist = playlistCombo.SelectedItem as Playlist;
-                    return playlist?.Name ?? "Плейлист";
-                case 1:
-                    try
-                    {
-                        return Path.GetFileName(contentValue);
-                    }
-                    catch
-                    {
-                        return "Медиафайл";
-                    }
-                case 2:
-                    try
-                    {
-                        var uri = new Uri(contentValue);
-                        return uri.Host ?? "Веб-страница";
-                    }
-                    catch
-                    {
-                        return "Веб-страница";
-                    }
-                default:
-                    return contentValue;
-            }
-        }
-
-        private ContentItem CreateContentItem(string contentType, string contentValue)
-        {
-            string name;
-            string type;
-
-            if (contentType == "Веб-страница")
-            {
-                name = "Веб-контент";
-                type = "web";
-            }
-            else if (contentType == "Плейлист")
-            {
-                name = "Плейлист";
-                type = "playlist";
-            }
-            else 
-            {
-                try
-                {
-                    name = Path.GetFileNameWithoutExtension(contentValue);
-                }
-                catch
-                {
-                    name = "Медиафайл";
-                }
-                type = GetMediaType(Path.GetExtension(contentValue));
-            }
-
-            return new ContentItem
-            {
-                Name = name,
-                FilePath = contentValue,
-                Type = type
-            };
-        }
-
         private void StopDisplayContent(int displayId)
         {
             if (activePlayers.ContainsKey(displayId))
@@ -507,7 +425,7 @@ namespace TV.Pages
 
         private string GetMediaType(string extension)
         {
-            switch (extension)
+            switch (extension.Replace('.', ' ').Trim())
             {
                 case "mp4":
                 case "avi":
@@ -532,13 +450,13 @@ namespace TV.Pages
             }
         }
 
-        private void PositionWindowOnDisplay(Window window, Classes.Display.Display display)
+        private void PositionWindowOnDisplay(Window window, Display display)
         {
             var targetScreen = FindTargetScreen(display);
             SetWindowToScreen(window, targetScreen);
         }
 
-        private Screen FindTargetScreen(Classes.Display.Display display)
+        private Screen FindTargetScreen(Display display)
         {
 
             var screens = Screen.AllScreens;
@@ -611,7 +529,7 @@ namespace TV.Pages
 
             foreach (var display in selectedDisplays)
             {
-                var displayContent = await Classes.Display.DisplayContent.LoadByDisplayIdAsync(display.Id);
+                var displayContent = await DisplayContent.LoadByDisplayIdAsync(display.Id);
 
                 ApplyContentToDisplay(display, displayContent);
             }
@@ -638,17 +556,19 @@ namespace TV.Pages
             UpdateSelectionInfo();
         }
 
-        private void StartDisplay(object sender, RoutedEventArgs e)
+        private async void StartDisplay(object sender, RoutedEventArgs e)
         {
-            //if (sender is System.Windows.Controls.Button button && button.tag != null)
-            //{
-            //    int displayid = (int)button.tag;
-            //    var display = viewmodel.displays.firstordefault(d => d.id == displayid);
-            //    if (display != null)
-            //    {
-            //        applycontenttodisplay(display);
-            //    }
-            //}
+            if (sender is System.Windows.Controls.Button button && button.Tag != null)
+            {
+                int displayid = (int)button.Tag;
+                var display = viewModel.Displays.FirstOrDefault(d => d.Id == displayid);
+                if (display != null)
+                {
+                    var displayContent = await DisplayContent.LoadByDisplayIdAsync(display.Id);
+
+                    ApplyContentToDisplay(display, displayContent);
+                }
+            }
         }
 
         private void StopDisplay(object sender, RoutedEventArgs e)
@@ -656,75 +576,15 @@ namespace TV.Pages
             if (sender is System.Windows.Controls.Button button && button.Tag != null)
             {
                 int displayId = (int)button.Tag;
+
                 StopDisplayContent(displayId);
 
                 var display = viewModel.Displays.FirstOrDefault(d => d.Id == displayId);
+
                 if (display != null)
-                {
                     display.Status = "Остановлен";
-                    display.CurrentContent = "Нет контента";
-                }
+                
             }
-        }
-
-        private void RefreshDataGrid()
-        {
-            displaysGrid.Items.Refresh();
-        }
-
-        private void StartPlaylistOnDisplay(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void StartMediaOnDisplay(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void StopDisplayPlayback(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void PreviewDisplay(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void SelectAllDisplays(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void DeselectAllDisplays(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void StartPlaylistOnSelected(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void StartMediaOnSelected(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void StartWebOnSelected(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void StopSelectedDisplays(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void ConfigureSelectedDisplays(object sender, RoutedEventArgs e)
-        {
-
         }
     }
 }

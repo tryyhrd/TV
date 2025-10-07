@@ -1,11 +1,13 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using TV.Classes;
 
 namespace TV.Pages.Media
@@ -66,7 +68,10 @@ namespace TV.Pages.Media
             var openFileDialog = new Microsoft.Win32.OpenFileDialog
             {
                 Multiselect = true,
-                Filter = "Медиафайлы|*.mp4;*.avi;*.mkv;*.mov;*.mp3;*.wav;*.ogg;*.jpg;*.png;*.gif|Все файлы|*.*"
+                Filter = "Все поддерживаемые форматы|*.mp4;*.avi;*.mov;*.wmv;*.mkv;*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.webp;|" +
+                "Изображения|*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.webp;*.tiff;*.svg|" +
+                "Видео файлы|*.mp4;*.avi;*.mov;*.wmv;*.mkv;*.flv;*.webm;*.m4v|" +
+                 "Все файлы|*.*",
             };
 
             if (openFileDialog.ShowDialog() == true)
@@ -99,10 +104,7 @@ namespace TV.Pages.Media
         {
             {"mp4", "video"}, {"avi", "video"}, {"mkv", "video"}, {"mov", "video"},
             {"wmv", "video"}, {"flv", "video"}, {"webm", "video"},
-            
-            {"mp3", "audio"}, {"wav", "audio"}, {"ogg", "audio"}, {"flac", "audio"},
-            {"aac", "audio"}, {"wma", "audio"},
-            
+          
             {"jpg", "image"}, {"jpeg", "image"}, {"png", "image"}, {"gif", "image"},
             {"bmp", "image"}, {"tiff", "image"}, {"webp", "image"}
         };
@@ -223,6 +225,23 @@ namespace TV.Pages.Media
         private void Duration_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
             e.Handled = !char.IsDigit(e.Text, 0);
+        }
+    }
+
+    public class VideoToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is string type)
+            {
+                return type == "video" ? Visibility.Visible : Visibility.Collapsed;
+            }
+            return Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }

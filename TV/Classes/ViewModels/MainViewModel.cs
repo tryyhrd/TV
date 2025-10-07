@@ -6,7 +6,7 @@ namespace TV.Classes
 {
     public class MainViewModel: INotifyPropertyChanged
     {
-        public ObservableCollection<Classes.Display.Display> Displays { get; } = new ObservableCollection<Classes.Display.Display>();
+        public ObservableCollection<Display.Display> Displays { get; } = new ObservableCollection<Display.Display>();
 
         private string activeDisplaysString = "Выбрано: 0";
         public string ActiveDisplaysString
@@ -28,7 +28,7 @@ namespace TV.Classes
         {
             if (e.NewItems != null)
             {
-                foreach (Classes.Display.Display display in e.NewItems)
+                foreach (Display.Display display in e.NewItems)
                 {
                     display.PropertyChanged += Display_PropertyChanged;
                 }
@@ -39,7 +39,7 @@ namespace TV.Classes
 
         private void Display_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(Classes.Display.Display.IsSelected))
+            if (e.PropertyName == nameof(Display.Display.IsSelected))
             {
                 UpdateActiveDisplaysString();
             }

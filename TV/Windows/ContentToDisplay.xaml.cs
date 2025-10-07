@@ -27,6 +27,7 @@ namespace TV.Windows
             Topmost = true;
 
             var screen = targetDisplay.Screen;
+
             Left = screen.Bounds.Left;
             Top = screen.Bounds.Top;
             Width = screen.Bounds.Width;
@@ -44,9 +45,6 @@ namespace TV.Windows
                     break;
                 case "video":
                     LoadVideo(contentItem);
-                    break;
-                case "audio":
-                    LoadAudio(contentItem);
                     break;
                 default:
                     LoadUnknownContent(contentItem);
@@ -69,7 +67,7 @@ namespace TV.Windows
                 image.Source = CreateErrorImage($"Ошибка загрузки: {ex.Message}");
             }
 
-            this.Content = image;
+            Content = image;
         }
 
         private void LoadVideo(ContentItem contentItem)
@@ -80,30 +78,9 @@ namespace TV.Windows
             mediaElement.UnloadedBehavior = MediaState.Manual;
             mediaElement.Play();
 
-            mediaElement.MediaEnded += (s, e) => this.Close();
+            mediaElement.MediaEnded += (s, e) => Close();
 
-            this.Content = mediaElement;
-        }
-
-        private void LoadAudio(ContentItem contentItem)
-        {
-            var stackPanel = new StackPanel
-            {
-                Background = Brushes.Black,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-
-            var textBlock = new TextBlock
-            {
-                Text = $"🎵 {contentItem.Name}",
-                Foreground = Brushes.White,
-                FontSize = 24,
-                TextAlignment = TextAlignment.Center
-            };
-
-            stackPanel.Children.Add(textBlock);
-            this.Content = stackPanel;
+            Content = mediaElement;
         }
 
         private void LoadUnknownContent(ContentItem contentItem)
@@ -119,7 +96,7 @@ namespace TV.Windows
                 VerticalAlignment = VerticalAlignment.Center
             };
 
-            this.Content = textBlock;
+            Content = textBlock;
         }
 
         private BitmapImage CreateErrorImage(string errorMessage)

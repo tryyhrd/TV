@@ -10,7 +10,8 @@
         Height="500"
         Width="900"
         MinHeight="500"
-        MinWidth="900">
+        MinWidth="900"
+        Icon="/Resources/tv.png">
     <Grid>
         <Grid.Resources>
             <ResourceDictionary Source="/Resources/Dictionary.xaml"/>
