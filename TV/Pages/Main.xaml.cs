@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using TV.Classes;
 using TV.Classes.Display;
+using TV.Classes.ViewModels;
 using TV.Windows;
 
 namespace TV.Pages
@@ -18,36 +20,39 @@ namespace TV.Pages
     {
 
         private MainViewModel viewModel;
-        private Classes.ViewModels.PlaylistsViewModel playlistsViewModel;
+        private PlaylistsViewModel playlistsViewModel = new PlaylistsViewModel();
+        private List<Playlist> _playlists;
 
-        private readonly Dictionary<int, DisplayPlayer> activePlayers = new Dictionary<int, DisplayPlayer>();
-        private readonly Dictionary<int, ContentToDisplay> activeWindows = new Dictionary<int, ContentToDisplay>();
+        private Dictionary<int, ContentToDisplay> _displayWindows = new Dictionary<int, ContentToDisplay>();
+        private Dictionary<int, DisplayPlayer> _displayPlayers = new Dictionary<int, DisplayPlayer>();
 
         Microsoft.Win32.OpenFileDialog selectedFile;
-
-        private DateTime _lastPlaylistsErrorTime = DateTime.MinValue;
-        private DateTime _lastContentErrorTime = DateTime.MinValue;
         public Main()
         {
             InitializeComponent();
 
             viewModel = new MainViewModel();
-            playlistsViewModel = new Classes.ViewModels.PlaylistsViewModel(); 
+            
 
             DataContext = viewModel;
             displaysGrid.ItemsSource = viewModel.Displays;
 
-            Loaded += (s, e) =>
+            Loaded += async (s, e) =>
             {
                 DetectDisplays(s, e);
-                LoadPlaylists();
+                await LoadPlaylists();
                 LoadContentToDisplays();
             };
 
             contentTypeCombo.SelectedIndex = 1;
         }
 
-        private void DetectDisplays(object sender, RoutedEventArgs e)
+        private async void DetectDisplays(object sender, RoutedEventArgs e)
+        {
+            await DetectDisplays();
+        }
+
+        private async Task DetectDisplays()
         {
             viewModel.Displays.Clear();
             
@@ -61,9 +66,26 @@ namespace TV.Pages
                     Name = screens[i].DeviceName,
                     Resolution = $"{screens[i].Bounds.Width}x{screens[i].Bounds.Height}",
                     Screen = screens[i],
-                    Status = "Обнаружен",
                     IsPrimary = screens[i].Primary
                 };
+
+                var content = await DisplayContent.LoadByDisplayIdAsync(display.Id);
+
+                switch (content.ContentType)
+                {
+                    case "Плейлист":
+                        display.Status = "Плейлист установлен";
+                        break;
+                    case "Медиафайл":
+                        display.Status = "Медиа контент установлен";
+                        break;
+                    case "Веб":
+                        display.Status = "Веб-контент установлен";
+                        break;
+                    case null:
+                        display.Status = "Дисплей неактивен";
+                        break;
+                }
 
                 viewModel.Displays.Add(display);
             }
@@ -72,19 +94,19 @@ namespace TV.Pages
             UpdateSelectionInfo();
         }
 
-        private async void LoadPlaylists()
+        private async Task LoadPlaylists()
         {
             try
             {
-                var playlists = await playlistsViewModel.LoadPlaylistsAsync();
-                playlistCombo.ItemsSource = playlists;
+                _playlists = await playlistsViewModel.LoadPlaylistsAsync();
+                playlistCombo.ItemsSource = _playlists;
 
-                if (playlists?.Count > 0)
+                if (_playlists?.Count > 0)
                     playlistCombo.SelectedIndex = 0;
             }
-            catch (Exception ex)
+            catch
             {
-                System.Windows.MessageBox.Show($"Ошибка загрузки плейлистов: {ex.Message}");
+                return;
             }
         }
 
@@ -99,13 +121,28 @@ namespace TV.Pages
                     if (content != null)
                     {
                         display.ContentType = content.ContentType;
-                        display.CurrentContent = content.ContentValue;
+
+                        switch (display.ContentType)
+                        {
+                            case "Плейлист":
+                                display.CurrentContent = _playlists.First(x => x.Id == int.Parse(content.ContentValue)).Name;
+                                break;
+                            case "Медиафайл":
+                                display.CurrentContent = Path.GetFileName(content.ContentValue);
+                                break;
+                            case "Веб":
+                                display.CurrentContent = _playlists.First(x => x.Id == int.Parse(content.ContentValue)).Name;
+                                break;
+                            default:
+                                display.CurrentContent = "Нет";
+                                break;
+                        }
                     }
                 }
             }
-            catch (Exception ex) 
+            catch
             {
-                System.Windows.MessageBox.Show($"Ошибка загрузки контента для плейлистов: {ex.Message}");
+                return;
             }          
         }
 
@@ -321,105 +358,52 @@ namespace TV.Pages
 
         private void ApplyContentToDisplay(Display display, DisplayContent displayContent)
         {
-            try
+            StopDisplayContent(display.Id); 
+
+            if (!_displayWindows.TryGetValue(display.Id, out ContentToDisplay window))
             {
-                StopDisplayContent(display.Id);
-
-                string contentType = displayContent.ContentType;
-                string contentValue = displayContent.ContentValue;
-
-                display.ContentType = contentType;
-                display.CurrentContent = displayContent.DisplayName;
-
-                switch (contentType)
-                {
-                    case "Плейлист":
-
-                        if (displayContent.Playlist != null)
-                        {
-                            var player = new DisplayPlayer(display, displayContent.Playlist);
-                            activePlayers[display.Id] = player;
-                            player.StartPlayback();
-
-                            display.Status = "Воспроизведение плейлиста";
-                        }
-
-                        else display.Status = "Плейлист не обнаружен";
-
-                        break;
-
-                    case "Медиафайл":
-                        string mediaPath = displayContent.ContentValue ?? contentValue;
-
-                        if (File.Exists(mediaPath))
-                        {
-                            var mediaContentItem = new ContentItem
-                            {
-                                Name = Path.GetFileNameWithoutExtension(mediaPath),
-                                FilePath = mediaPath,
-                                Type = GetMediaType(Path.GetExtension(mediaPath))
-                                
-                            };
-
-                            System.Windows.Forms.MessageBox.Show(mediaContentItem.Type.ToString());
-
-                            var mediaWindow = new ContentToDisplay(mediaContentItem, display);
-                            activeWindows[display.Id] = mediaWindow;
-                            PositionWindowOnDisplay(mediaWindow, display);
-                            mediaWindow.Show();
-                            display.Status = "Воспроизведение медиа";
-                        }
-                        else
-                        {
-                            display.Status = "Ошибка: файл не найден";
-                        }
-                        break;
-
-                    case "Веб-страница":
-                        string webUrl = displayContent.ContentValue ?? contentValue;
-                        var webContentItem = new ContentItem
-                        {
-                            Name = "Веб-контент",
-                            FilePath = webUrl,
-                            Type = "web"
-                        };
-
-                        var webWindow = new ContentToDisplay(webContentItem, display);
-                        activeWindows[display.Id] = webWindow;
-                        PositionWindowOnDisplay(webWindow, display);
-                        webWindow.Show();
-                        display.Status = "Открыта веб-страница";
-                        break;
-
-                    default:
-                        display.Status = "Неизвестный тип контента";
-                        break;
-                }
-
-                displaysGrid.Items.Refresh();
+                window = new ContentToDisplay(display);
+                _displayWindows[display.Id] = window;
+                window.Show();
             }
-            catch (Exception ex)
+
+            switch (displayContent.ContentType)
             {
-                display.Status = "Ошибка запуска";
-                ShowErrorMessage($"Ошибка запуска контента на дисплее {display.Name}: {ex.Message}");
-                displaysGrid.Items.Refresh();
+                case "Плейлист":
+                    var player = new DisplayPlayer(displayContent.Playlist, window);
+                    _displayPlayers[display.Id] = player;
+                    player.Start();
+                    display.Status = "Воспроизведение плейлиста";
+                    break;
+
+                case "Медиафайл":
+                    var mediaItem = new ContentItem
+                    {
+                        Type = GetMediaType(Path.GetExtension(displayContent.ContentValue)),
+                        FilePath = displayContent.ContentValue
+                    };
+                    window.PlayContent(mediaItem);
+                    display.Status = "Воспроизведение медиа";
+                    break;
+
+                case "Веб-страница":
+                    window.PlayContent(new ContentItem { Type = "web", FilePath = displayContent.ContentValue });
+                    display.Status = "Открыта веб-страница";
+                    break;
             }
         }
 
         private void StopDisplayContent(int displayId)
         {
-            if (activePlayers.ContainsKey(displayId))
+            if (_displayPlayers.ContainsKey(displayId))
             {
-                var player = activePlayers[displayId];
-                player.StopPlayback();
-                activePlayers.Remove(displayId);
+                _displayPlayers[displayId].Stop();
+                _displayPlayers.Remove(displayId);
             }
 
-            if (activeWindows.ContainsKey(displayId))
+            if (_displayWindows.ContainsKey(displayId))
             {
-                var window = activeWindows[displayId];
-                window.Close();
-                activeWindows.Remove(displayId);
+                _displayWindows[displayId].StopPlayback();
             }
         }
 
@@ -448,46 +432,6 @@ namespace TV.Pages
                 default:
                     return "unknown";
             }
-        }
-
-        private void PositionWindowOnDisplay(Window window, Display display)
-        {
-            var targetScreen = FindTargetScreen(display);
-            SetWindowToScreen(window, targetScreen);
-        }
-
-        private Screen FindTargetScreen(Display display)
-        {
-
-            var screens = Screen.AllScreens;
-
-            if (display.Id >= 0 && display.Id < screens.Length)
-                return screens[display.Id];
-
-            if (!string.IsNullOrEmpty(display.Name))
-            {
-                var byName = screens.FirstOrDefault(s =>
-                    s.DeviceName.Equals(display.Name, StringComparison.OrdinalIgnoreCase));
-                if (byName != null) return byName;
-            }
-
-            return Screen.PrimaryScreen ?? screens.First();
-        }
-
-        private void SetWindowToScreen(Window window, Screen screen)
-        {
-            window.WindowStartupLocation = WindowStartupLocation.Manual;
-            var workingArea = screen.WorkingArea;
-
-            window.Left = workingArea.Left;
-            window.Top = workingArea.Top;
-            window.Width = workingArea.Width;
-            window.Height = workingArea.Height;
-
-            window.WindowStyle = WindowStyle.None;
-            window.WindowState = WindowState.Normal;
-            window.ResizeMode = ResizeMode.NoResize;
-            window.Topmost = true;
         }
 
         private void UpdateSelectionInfo()

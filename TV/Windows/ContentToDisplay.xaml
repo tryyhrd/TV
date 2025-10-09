@@ -5,12 +5,4 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TV.Windows"
         mc:Ignorable="d" WindowState="Maximized" WindowStyle="None" Background="Black">
-    <Grid>
-        <Image x:Name="imageDisplay" 
-               Stretch="Uniform" Visibility="Collapsed"/>
-        <MediaElement x:Name="mediaElement"
-                      LoadedBehavior="Manual"
-                      UnloadedBehavior="Stop"
-                      Stretch="Uniform" Visibility="Collapsed"/>
-    </Grid>
 </Window>

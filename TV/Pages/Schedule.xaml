@@ -5,69 +5,135 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:TV.Pages"
       mc:Ignorable="d" 
-      d:DesignHeight="500" d:DesignWidth="900"
+      d:DesignHeight="600" d:DesignWidth="1000"
       Title="Schedule" Background="White">
 
     <Grid Margin="15">
         <Grid.Resources>
             <ResourceDictionary Source="/Resources/Dictionary.xaml"/>
         </Grid.Resources>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
+        <!-- Header Panel - как на других страницах -->
         <Border Grid.Row="0" Style="{StaticResource CardStyle}">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="⏰ Управление расписаниями" Style="{StaticResource PageHeaderStyle}"/>
+                <Button Content="🔄 Обнаружить дисплеи" Click="DetectDisplays" 
+                        Style="{StaticResource ModernButton}" Background="#374151"
+                        Visibility="Collapsed"/>
+                <Button Content="▶️ Запустить выбранные" Click="StartAll" 
+                        Style="{StaticResource ModernButton}" Background="#065F46"
+                        Visibility="Collapsed"/>
+                <Button Content="⏹️ Остановить выбранные" Click="StopAll" 
+                        Style="{StaticResource ModernButton}" Background="#991B1B"
+                        Visibility="Collapsed"/>
+
+                <TextBlock Text="⏰ Управление расписаниями" Style="{StaticResource PageHeaderStyle}" 
+                           VerticalAlignment="Center" Margin="20,0,0,0"/>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,0,0,0">
-                    <Button Content="➕ Новое расписание" Click="CreateSchedule" 
-                        Style="{StaticResource ModernButton}" Background="#10B981"/>
-                    <Button Content="🗑️ Удалить выбранные" Click="DeleteSchedules" 
-                        Style="{StaticResource ModernButton}" Background="#EF4444" Margin="8,0,0,0"/>
+                    <Button Content="Новое расписание" Click="CreateSchedule" 
+                            Style="{StaticResource ModernButton}" Background="#10B981"
+                            ToolTip="Создать новое расписание"/>
+                    <Button Content="Удалить выбранные" Click="DeleteSchedules" 
+                            Style="{StaticResource ModernButton}" Background="#EF4444" Margin="8,0,0,0"
+                            ToolTip="Удалить выбранные расписания"/>
                 </StackPanel>
             </StackPanel>
         </Border>
 
-        <Grid Grid.Row="1">
+        <!-- Main Content Area -->
+        <Grid Grid.Row="1" Margin="0,10,0,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="300"/>
-                <ColumnDefinition Width="10"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="300" MinWidth="250"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="*" MinWidth="400"/>
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0" Padding="10">
+            <!-- Left Panel - Список расписаний -->
+            <Border Grid.Column="0" Style="{StaticResource CardStyle}" Margin="0" Padding="0">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Text="Активные расписания" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                    <Border Background="#F8FAFC" Padding="12,8" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+                        <TextBlock Text="Активные расписания" FontWeight="SemiBold" Foreground="#374151"/>
+                    </Border>
 
                     <ListView Grid.Row="1" x:Name="schedulesListView" 
-                          SelectionChanged="Schedule_Selected"
-                          BorderThickness="0" Background="Transparent">
+                              SelectionChanged="Schedule_Selected"
+                              BorderThickness="0" Background="White"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListViewItem">
+                                            <Border x:Name="Bd" Background="{TemplateBinding Background}" 
+                                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                                    BorderThickness="{TemplateBinding BorderThickness}" 
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Bd" Property="Background" Value="#F3F4F6"/>
+                                                </Trigger>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter TargetName="Bd" Property="Background" Value="#EFF6FF"/>
+                                                    <Setter TargetName="Bd" Property="BorderBrush" Value="#3B82F6"/>
+                                                    <Setter TargetName="Bd" Property="BorderThickness" Value="0,0,0,2"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <Border Padding="8,6" Background="Transparent" CornerRadius="4">
+                                <Border Padding="12,8" Background="Transparent">
                                     <StackPanel>
-                                        <TextBlock Text="{Binding Name}" FontWeight="Medium"/>
-                                        <TextBlock Text="{Binding ScheduleRange}" FontSize="11" Foreground="#666"/>
-                                        <TextBlock Text="{Binding Status}" FontSize="11" 
-                                               Foreground="{Binding StatusColor}"/>
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="#1F2937"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="{Binding ScheduleRange}" FontSize="11" Foreground="#6B7280"
+                                                   TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                            <Rectangle Width="8" Height="8" Fill="{Binding StatusColor}" 
+                                                       VerticalAlignment="Center" RadiusX="2" RadiusY="2"/>
+                                            <TextBlock Text="{Binding Status}" FontSize="10" 
+                                                       Foreground="#6B7280" Margin="4,0,0,0"/>
+                                        </StackPanel>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
+
+                    <Border Grid.Row="2" Background="#F8FAFC" Padding="8" BorderBrush="#E2E8F0" BorderThickness="0,1,0,0">
+                        <TextBlock x:Name="schedulesCount" Text="Расписаний: 0" FontSize="11" Foreground="#6B7280"
+                                   HorizontalAlignment="Center"/>
+                    </Border>
                 </Grid>
             </Border>
 
-            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="Transparent"/>
+            <!-- GridSplitter -->
+            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" 
+                          Background="Transparent" DragIncrement="1"/>
 
+            <!-- Right Panel - Детали расписания -->
             <Border Grid.Column="2" Style="{StaticResource CardStyle}" Margin="0" Padding="0">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -76,53 +142,76 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <Border Grid.Row="0" Background="#F8F9FA" Padding="15" CornerRadius="6,6,0,0">
+                    <!-- Header деталей расписания -->
+                    <Border Grid.Row="0" Background="#F8FAFC" Padding="15" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
                         <Grid>
-                            <StackPanel Orientation="Horizontal">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Orientation="Vertical">
                                 <TextBlock x:Name="currentScheduleName" Text="Выберите расписание" 
-                                       FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                <TextBlock x:Name="scheduleStatus" Text=" (Неактивно)" 
-                                       Foreground="#666" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                                           FontWeight="SemiBold" FontSize="16" Foreground="#1F2937"/>
+                                <TextBlock x:Name="scheduleStatus" Text="Статус: Неактивно" 
+                                           Foreground="#6B7280" FontSize="12" Margin="0,2,0,0"/>
                             </StackPanel>
 
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                <Button Content="▶️ Запустить" Click="StartSchedule" 
-                                    Style="{StaticResource ModernIconButton}" Background="#10B981" Width="auto"/>
-                                <Button Content="⏹️ Остановить" Click="StopSchedule" 
-                                    Style="{StaticResource ModernIconButton}" Background="#EF4444" Margin="5,0" Width="auto"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <Button Content="Запустить" Click="StartSchedule" 
+                                        Style="{StaticResource ModernButton}" Background="#10B981"
+                                        Width="auto" Height="28"/>
+                                <Button Content="Остановить" Click="StopSchedule" 
+                                        Style="{StaticResource ModernButton}" Background="#EF4444" 
+                                        Margin="8,0,0,0" Width="auto" Height="28"/>
+                                <Button Content="Настройки" Click="EditSchedule" 
+                                        Style="{StaticResource ModernButton}" Background="#6B7280" 
+                                        Margin="8,0,0,0" Width="auto" Height="28"/>
                             </StackPanel>
                         </Grid>
                     </Border>
 
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                        <ItemsControl x:Name="timelineItems" Margin="10">
+                    <!-- Timeline Content -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                  Padding="10">
+                        <ItemsControl x:Name="timelineItems">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Style="{StaticResource CardStyle}" Margin="0,0,0,8" Padding="10">
+                                    <Border Style="{StaticResource CardStyle}" Margin="0,0,0,8" Padding="12">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="100"/>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <StackPanel Grid.Column="0" Margin="0,0,15,0">
-                                                <TextBlock Text="{Binding StartTime}" FontWeight="Bold" FontSize="14"/>
-                                                <TextBlock Text="{Binding EndTime}" Foreground="#666" FontSize="12"/>
+                                            <!-- Время -->
+                                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding StartTime}" FontWeight="SemiBold" 
+                                                           FontSize="13" Foreground="#1F2937"/>
+                                                <TextBlock Text="{Binding EndTime}" FontSize="11" 
+                                                           Foreground="#6B7280" Margin="0,2,0,0"/>
                                             </StackPanel>
 
-                                            <StackPanel Grid.Column="1">
-                                                <TextBlock Text="{Binding PlaylistName}" FontWeight="SemiBold"/>
-                                                <TextBlock Text="{Binding Description}" Foreground="#666" FontSize="12"/>
+                                            <StackPanel Grid.Column="1" Margin="12,0">
+                                                <TextBlock Text="{Binding PlaylistName}" FontWeight="SemiBold" 
+                                                           Foreground="#1F2937" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{Binding Description}" FontSize="11" 
+                                                           Foreground="#6B7280" TextWrapping="Wrap" Margin="0,2,0,0"/>
                                                 <ProgressBar Value="{Binding Progress}" Maximum="100" 
-                                                         Height="6" Margin="0,5,0,0" Background="#E5E7EB"/>
+                                                             Height="4" Margin="0,6,0,0" Background="#E5E7EB"
+                                                             Foreground="#10B981"/>
                                             </StackPanel>
 
-                                            <StackPanel Grid.Column="2" Orientation="Horizontal">
-                                                <Button Content="✏️" Click="EditTimeSlot" Tag="{Binding Id}"
-                                                    Style="{StaticResource ModernIconButton}" Background="#6B7280"/>
-                                                <Button Content="🗑️" Click="DeleteTimeSlot" Tag="{Binding Id}"
-                                                    Style="{StaticResource ModernIconButton}" Background="#EF4444" Margin="5,0"/>
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Button Content="✏" Click="EditTimeSlot" Tag="{Binding Id}"
+                                                        Style="{StaticResource ModernIconButton}" 
+                                                        Background="#6B7280" Width="24" Height="24"
+                                                        ToolTip="Редактировать период"/>
+                                                <Button Content="🗑" Click="DeleteTimeSlot" Tag="{Binding Id}"
+                                                        Style="{StaticResource ModernIconButton}" 
+                                                        Background="#EF4444" Margin="6,0,0,0" Width="24" Height="24"
+                                                        ToolTip="Удалить период"/>
                                             </StackPanel>
                                         </Grid>
                                     </Border>
@@ -131,19 +220,45 @@
                         </ItemsControl>
                     </ScrollViewer>
 
-                    <Border Grid.Row="2" Background="#F8F9FA" Padding="10" CornerRadius="0,0,6,6">
-                        <StackPanel Orientation="Horizontal">
-                            <Button Content="➕ Добавить период" Click="AddTimeSlot" 
-                                Style="{StaticResource ModernButton}" Background="#10B981"/>
-                            <ComboBox x:Name="playlistSelector" Width="200" Margin="10,0" 
-                                  DisplayMemberPath="Name" Height="28"/>
-                            <DatePicker x:Name="scheduleDate" Width="120" Margin="10,0"/>
-                            <Button Content="🔄 Повторение" Click="ConfigureRepeating" 
-                                Style="{StaticResource ModernButton}" Background="#6B7280" Margin="10,0"/>
-                        </StackPanel>
+                    <Border Grid.Row="2" Background="#F8FAFC" Padding="12" BorderBrush="#E2E8F0" BorderThickness="0,1,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Button Grid.Column="0" Content="➕ Добавить период" Click="AddTimeSlot" 
+                                    Style="{StaticResource ModernButton}" Background="#10B981"
+                                    Height="28" Padding="8,0"/>
+
+                            <ComboBox Grid.Column="1" x:Name="playlistSelector" Margin="12,0" 
+                                      DisplayMemberPath="Name" Height="28" VerticalContentAlignment="Center"
+                                      ToolTip="Выберите плейлист"/>
+
+                            <DatePicker Grid.Column="2" x:Name="scheduleDate" Width="120" Margin="6,0"
+                                        Height="28" VerticalContentAlignment="Center"/>
+
+                            <Button Grid.Column="3" Content="🔄 Повторение" Click="ConfigureRepeating" 
+                                    Style="{StaticResource ModernButton}" Background="#6B7280" 
+                                    Margin="6,0,0,0" Height="28" Padding="8,0"
+                                    ToolTip="Настроить повторение расписания"/>
+                        </Grid>
                     </Border>
                 </Grid>
             </Border>
         </Grid>
+
+        <Border Grid.Row="2" Background="#F8F9FA" BorderBrush="#E0E0E0" BorderThickness="1,0,0,0" 
+                Padding="10,8" CornerRadius="0,0,6,6" Margin="0,10,0,0">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock x:Name="activeSchedulesInfo" Text="Активных расписаний: 0" FontWeight="SemiBold" 
+                           Margin="0,0,20,0" VerticalAlignment="Center"/>
+                <Rectangle Width="1" Height="20" Fill="#E0E0E0" Margin="0,0,20,0"/>
+                <TextBlock x:Name="schedulesStatus" Text="Готово" VerticalAlignment="Center" 
+                           Foreground="#666" FontStyle="Italic"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </Page>

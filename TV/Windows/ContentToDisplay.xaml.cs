@@ -5,6 +5,10 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using TV.Classes;
+using TV.Classes.Display;
+using System.Windows.Input;
+using System.Windows.Forms;
+using System.Linq;
 
 namespace TV.Windows
 {
@@ -13,125 +17,154 @@ namespace TV.Windows
     /// </summary>
     public partial class ContentToDisplay : Window
     {
-        public ContentToDisplay(ContentItem contentItem, Classes.Display.Display display)
+        private MediaElement _mediaElement;
+        private Image _imageElement;
+        private System.Windows.Controls.WebBrowser _webBrowser;
+        private DisplayPlayer _currentPlayer;
+        public ContentToDisplay(Display display)
         {
             InitializeComponent();
 
-            SetupWindow(contentItem, display); 
+            CreateMediaElements();
+            SetupWindow(display); 
         }
 
-        private void SetupWindow(ContentItem contentItem, Classes.Display.Display targetDisplay)
+        private void SetupWindow(Display display)
         {
             WindowStyle = WindowStyle.None;
             WindowState = WindowState.Maximized;
-            Topmost = true;
+            //Topmost = true;
 
-            var screen = targetDisplay.Screen;
+            var targetScreen = FindTargetScreen(display);
+            SetWindowToScreen(this, targetScreen);
 
-            Left = screen.Bounds.Left;
-            Top = screen.Bounds.Top;
-            Width = screen.Bounds.Width;
-            Height = screen.Bounds.Height;
+            Closing += (s, e) => StopPlayback();
 
-            LoadContent(contentItem);
+            KeyDown += (s, e) =>
+            {
+                if (e.Key == Key.Escape || e.Key == Key.Q)
+                {
+                    Close();
+                }
+            };
         }
 
-        private void LoadContent(ContentItem contentItem)
+        private Screen FindTargetScreen(Display display)
         {
-            switch (contentItem.Type)
-            {
-                case "image":
-                    LoadImage(contentItem);
-                    break;
-                case "video":
-                    LoadVideo(contentItem);
-                    break;
-                default:
-                    LoadUnknownContent(contentItem);
-                    break;
-            }
-        }
+            var screens = Screen.AllScreens;
 
-        private void LoadImage(ContentItem contentItem)
-        {
-            var image = new Image();
+            if (display.Id >= 0 && display.Id < screens.Length)
+                return screens[display.Id];
 
-            try
+            if (!string.IsNullOrEmpty(display.Name))
             {
-                var bitmap = new BitmapImage(new Uri(contentItem.FilePath));
-                image.Source = bitmap;
-                image.Stretch = Stretch.Uniform;
-            }
-            catch (Exception ex)
-            {
-                image.Source = CreateErrorImage($"Ошибка загрузки: {ex.Message}");
+                var byName = screens.FirstOrDefault(s =>
+                    s.DeviceName.Equals(display.Name, StringComparison.OrdinalIgnoreCase));
+                if (byName != null) return byName;
             }
 
-            Content = image;
+            return Screen.PrimaryScreen ?? screens.First();
         }
 
-        private void LoadVideo(ContentItem contentItem)
+        private void SetWindowToScreen(Window window, Screen screen)
         {
-            var mediaElement = new MediaElement();
-            mediaElement.Source = new Uri(contentItem.FilePath);
-            mediaElement.LoadedBehavior = MediaState.Manual;
-            mediaElement.UnloadedBehavior = MediaState.Manual;
-            mediaElement.Play();
+            window.WindowStartupLocation = WindowStartupLocation.Manual;
+            var workingArea = screen.WorkingArea;
 
-            mediaElement.MediaEnded += (s, e) => Close();
+            window.Left = workingArea.Left;
+            window.Top = workingArea.Top;
+            window.Width = workingArea.Width;
+            window.Height = workingArea.Height;
 
-            Content = mediaElement;
+            window.WindowStyle = WindowStyle.None;
+            window.WindowState = WindowState.Normal;
+            window.ResizeMode = ResizeMode.NoResize;
+            window.Topmost = true;
         }
 
-        private void LoadUnknownContent(ContentItem contentItem)
+        private void CreateMediaElements()
         {
-            var textBlock = new TextBlock
+            _mediaElement = new MediaElement
             {
-                Text = $"Неизвестный тип контента: {contentItem.Type}",
-                Foreground = Brushes.White,
-                Background = Brushes.Black,
-                FontSize = 18,
-                TextAlignment = TextAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
+                LoadedBehavior = MediaState.Manual,
+                UnloadedBehavior = MediaState.Stop
             };
 
-            Content = textBlock;
+            _imageElement = new Image
+            {
+                Stretch = Stretch.Uniform
+            };
+
+            _webBrowser = new System.Windows.Controls.WebBrowser();
+
+            _mediaElement.MediaEnded += (s, e) => _currentPlayer?.NextItem();
+
+            var grid = new Grid();
+
+            grid.Children.Add(_mediaElement);
+            grid.Children.Add(_imageElement);
+            grid.Children.Add(_webBrowser);
+
+            _mediaElement.Visibility = Visibility.Collapsed;
+            _imageElement.Visibility = Visibility.Collapsed;
+            _webBrowser.Visibility = Visibility.Collapsed;
+
+            Content = grid;
         }
 
-        private BitmapImage CreateErrorImage(string errorMessage)
+        public void PlayContent(ContentItem content)
         {
-            var visual = new DrawingVisual();
-            using (var context = visual.RenderOpen())
+            StopPlayback();
+
+            _mediaElement.Visibility = Visibility.Collapsed;
+            _imageElement.Visibility = Visibility.Collapsed;
+            _webBrowser.Visibility = Visibility.Collapsed;
+
+            switch (content.Type)
             {
-                context.DrawRectangle(Brushes.Red, null, new Rect(0, 0, 400, 200));
-                var text = new FormattedText(
-                    errorMessage,
-                    System.Globalization.CultureInfo.CurrentCulture,
-                    FlowDirection.LeftToRight,
-                    new Typeface("Arial"),
-                    14,
-                    Brushes.White,
-                    1.0);
-                context.DrawText(text, new Point(10, 10));
+                case "video":
+                    _mediaElement.Source = new Uri(content.FilePath);
+                    _mediaElement.Visibility = Visibility.Visible;
+                    _mediaElement.Play();
+                    break;
+                case "image":
+                    _imageElement.Source = new BitmapImage(new Uri(content.FilePath));
+                    _imageElement.Visibility = Visibility.Visible;
+                    break;
+                case "web":
+                    _webBrowser.Navigate(content.FilePath);
+                    _webBrowser.Visibility = Visibility.Visible;
+                    break;
             }
+        }
 
-            var bitmap = new RenderTargetBitmap(400, 200, 96, 96, PixelFormats.Pbgra32);
-            bitmap.Render(visual);
+        public void StartPlaylist(Playlist playlist)
+        {
+            _currentPlayer = new DisplayPlayer(playlist, this);
 
-            var bitmapImage = new BitmapImage();
-            using (var stream = new MemoryStream())
+            _currentPlayer.PlaylistEnded += () =>
             {
-                var encoder = new PngBitmapEncoder();
-                encoder.Frames.Add(BitmapFrame.Create(bitmap));
-                encoder.Save(stream);
-                bitmapImage.BeginInit();
-                bitmapImage.StreamSource = stream;
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.EndInit();
-            }
+                Dispatcher.Invoke(Close);
+            };
 
-            return bitmapImage;
+            _currentPlayer.Start();
+        }
+
+        public void StopPlayback()
+        {
+            _currentPlayer?.Stop();
+            _currentPlayer = null;
+
+            _mediaElement.Stop();
+            _mediaElement.Source = null;
+            _imageElement.Source = null;
+        }
+
+        public void ForceClose()
+        {
+            StopPlayback();
+            Close();
         }
     }
 }
+    

@@ -1,117 +1,68 @@
 ﻿using System;
 using System.Linq;
+using System.Windows.Threading;
 using TV.Windows;
 
 namespace TV.Classes.Display
 {
     public class DisplayPlayer
     {
-        private Display targetDisplay;
-        private Playlist currentPlaylist;
-        private ContentToDisplay currentWindow;
+        private Playlist _playlist;
+        private ContentToDisplay _window;
+        private int _currentIndex = 0;
+        private DispatcherTimer _timer = new DispatcherTimer();
 
-        private int currentItemIndex = 0;
+        public event Action PlaylistEnded;
 
-        private System.Windows.Threading.DispatcherTimer timer;
-        
-        public DisplayPlayer(Display display, Playlist playlist)
+        public DisplayPlayer(Playlist playlist, ContentToDisplay window)
         {
-            targetDisplay = display;
-            currentPlaylist = playlist;
+            _playlist = playlist;
+            _window = window;
 
-            timer = new System.Windows.Threading.DispatcherTimer();
-            timer.Tick += Timer_Tick;
+            _timer.Tick += (s, e) => NextItem();
         }
 
-        public async void StartPlayback()
+        public async void Start()
         {
-            if (currentPlaylist?.Items == null || !currentPlaylist.Items.Any())
+            if (_playlist.Items == null || !_playlist.Items.Any())
             {
                 var connection = new Common.Connection();
-                var items = await connection.GetPlaylistItemsAsync(currentPlaylist.Id);
-
-                currentPlaylist.Items = items;
-            }
-
-            if (currentPlaylist.Items == null || !currentPlaylist.Items.Any())
-            {
-                return;
+                _playlist.Items = await connection.GetPlaylistItemsAsync(_playlist.Id);
             }
 
             ShowCurrentItem();
-            StartTimerForNextItem();
         }
 
-        public void StopPlayback()
+        public void Stop()
         {
-            timer.Stop();
-            CloseCurrentWindow();
+            _timer.Stop();
         }
 
-        private void Timer_Tick(object sender, EventArgs e)
+        public void NextItem()
         {
-            timer.Stop();
-            PlayNextItem();
-        }
+            Stop();
+            _currentIndex++;
 
-        private void PlayNextItem()
-        {
-            currentItemIndex++;
-
-            if (currentItemIndex >= currentPlaylist.Items.Count)
+            if (_currentIndex >= _playlist.Items.Count)
             {
-                currentItemIndex = 0;
-                StopPlayback();
+                PlaylistEnded?.Invoke(); 
                 return;
             }
-
             ShowCurrentItem();
-            StartTimerForNextItem();
         }
 
         private void ShowCurrentItem()
         {
-            var currentItem = currentPlaylist.Items[currentItemIndex];
-            CloseCurrentWindow();
+            var item = _playlist.Items[_currentIndex];
+            _window.PlayContent(item); 
 
-            currentWindow = new ContentToDisplay(currentItem, targetDisplay);
-            currentWindow.Show();
-        }
-
-        private void StartTimerForNextItem()
-        {
-            var currentItem = currentPlaylist.Items[currentItemIndex];
-            int duration = GetDurationInSeconds(currentItem);
-
-            timer.Interval = TimeSpan.FromSeconds(duration);
-            timer.Start();
-        }
-
-        private int GetDurationInSeconds(ContentItem item)
-        {
-            if (item.Duration > 0)
+            if (item.Type != "video")
             {
-                return item.Duration;
-            }
-
-            switch (item.Type)
-            {
-                case "image":
-                    return 5;
-                case "video":
-                    return 0;
-                default:
-                    return 5;
+                int duration = item.Duration > 0 ? item.Duration :
+                              item.Type == "image" ? 5 : 10;
+                _timer.Interval = TimeSpan.FromSeconds(duration);
+                _timer.Start();
             }
         }
-
-        private void CloseCurrentWindow()
-        {
-            if (currentWindow != null)
-            {
-                currentWindow.Close();
-                currentWindow = null;
-            }
-        } 
     }
 }

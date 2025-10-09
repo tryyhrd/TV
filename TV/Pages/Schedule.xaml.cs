@@ -67,5 +67,30 @@ namespace TV.Pages
         {
 
         }
+
+        private void DetectDisplays(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void EditSchedule(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void RefreshSchedules(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void StartAll(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void StopAll(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
