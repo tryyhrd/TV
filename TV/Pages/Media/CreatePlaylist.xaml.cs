@@ -21,7 +21,7 @@ namespace TV.Pages.Media
 
         private void CloseWindow(object sender, RoutedEventArgs e)
         {
-
+            MainWindow.main.mainFrame.Navigate(new Main());
         }
 
         private void PlaylistName_TextChanged(object sender, TextChangedEventArgs e)
@@ -76,6 +76,9 @@ namespace TV.Pages.Media
                     IsActive = false
                 };
 
+                if (!string.IsNullOrEmpty(description.Text))
+                    newPlaylist.Description = description.Text;
+
                 bool success = CreatePlaylistInDatabase(playlistName);
 
                 if (success)
@@ -105,12 +108,13 @@ namespace TV.Pages.Media
                     connection.Open();
 
                     string query = @"
-                        INSERT INTO Playlists (Name, IsActive) 
-                        VALUES (@Name, @IsActive)";
+                        INSERT INTO Playlists (Name, Description, IsActive) 
+                        VALUES (@Name, @Description, @IsActive)";
 
                     using (var command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@Name", name);
+                        command.Parameters.AddWithValue("@Description", description.Text);
                         command.Parameters.AddWithValue("@IsActive", false);
 
                         int rowsAffected = command.ExecuteNonQuery();

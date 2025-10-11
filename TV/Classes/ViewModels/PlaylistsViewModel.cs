@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace TV.Classes.ViewModels
 {
@@ -58,8 +59,35 @@ namespace TV.Classes.ViewModels
                     }
                 }
             }
-
-
         }
-    }
+
+        public async Task UpdatePlaylistOrderInDatabase(Playlist playlist)
+        {
+            try
+            {
+                using (var connection = new MySqlConnection(Common.Connection.connectionString))
+                {
+                    await connection.OpenAsync();
+
+                    foreach (var item in playlist.Items)
+                    {
+                        var query = @"UPDATE PlaylistItems 
+                             SET `Order` = @order 
+                             WHERE Id = @itemId";
+
+                        var command = new MySqlCommand(query, connection);
+                        command.Parameters.AddWithValue("@order", item.Order);
+                        command.Parameters.AddWithValue("@itemId", item.Id);
+
+                        await command.ExecuteNonQueryAsync();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при обновлении порядка: {ex.Message}", "Ошибка",
+                                MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }   
 }

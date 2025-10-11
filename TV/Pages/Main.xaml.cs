@@ -24,7 +24,6 @@ namespace TV.Pages
         private List<Playlist> _playlists;
 
         private Dictionary<int, ContentToDisplay> _displayWindows = new Dictionary<int, ContentToDisplay>();
-        private Dictionary<int, DisplayPlayer> _displayPlayers = new Dictionary<int, DisplayPlayer>();
 
         Microsoft.Win32.OpenFileDialog selectedFile;
         public Main()
@@ -32,7 +31,6 @@ namespace TV.Pages
             InitializeComponent();
 
             viewModel = new MainViewModel();
-            
 
             DataContext = viewModel;
             displaysGrid.ItemsSource = viewModel.Displays;
@@ -140,13 +138,12 @@ namespace TV.Pages
                     }
                 }
             }
-            catch
+            catch 
             {
                 return;
             }          
         }
 
-        
         private void ContentType_Changed(object sender, SelectionChangedEventArgs e)
         {
             playlistPanel.Visibility = Visibility.Collapsed;
@@ -358,21 +355,22 @@ namespace TV.Pages
 
         private void ApplyContentToDisplay(Display display, DisplayContent displayContent)
         {
-            StopDisplayContent(display.Id); 
+            StopDisplayContent(display.Id);
 
-            if (!_displayWindows.TryGetValue(display.Id, out ContentToDisplay window))
+            var window = GetOrCreateDisplayWindow(display);
+
+            window.PlaylistEnded += () =>
             {
-                window = new ContentToDisplay(display);
-                _displayWindows[display.Id] = window;
-                window.Show();
-            }
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    window.ForceClose();
+                }));
+            };
 
             switch (displayContent.ContentType)
             {
                 case "Плейлист":
-                    var player = new DisplayPlayer(displayContent.Playlist, window);
-                    _displayPlayers[display.Id] = player;
-                    player.Start();
+                    window.StartPlaylist(displayContent.Playlist);
                     display.Status = "Воспроизведение плейлиста";
                     break;
 
@@ -393,17 +391,29 @@ namespace TV.Pages
             }
         }
 
-        private void StopDisplayContent(int displayId)
+        private ContentToDisplay GetOrCreateDisplayWindow(Display display)
         {
-            if (_displayPlayers.ContainsKey(displayId))
+            if (_displayWindows.ContainsKey(display.Id) && _displayWindows[display.Id] != null)
             {
-                _displayPlayers[displayId].Stop();
-                _displayPlayers.Remove(displayId);
+                return _displayWindows[display.Id];
             }
 
+            var window = new ContentToDisplay(display);
+            _displayWindows[display.Id] = window;
+
+            window.Closed += (s, e) => _displayWindows.Remove(display.Id);
+
+            window.Show();
+            return window;
+        }
+
+        private void StopDisplayContent(int displayId)
+        {
             if (_displayWindows.ContainsKey(displayId))
             {
                 _displayWindows[displayId].StopPlayback();
+                _displayWindows[displayId].Close();
+                _displayWindows.Remove(displayId);
             }
         }
 
@@ -520,14 +530,14 @@ namespace TV.Pages
             if (sender is System.Windows.Controls.Button button && button.Tag != null)
             {
                 int displayId = (int)button.Tag;
-
-                StopDisplayContent(displayId);
-
                 var display = viewModel.Displays.FirstOrDefault(d => d.Id == displayId);
 
-                if (display != null)
-                    display.Status = "Остановлен";
-                
+                if (display == null)
+                    return;
+
+                display.Status = "Остановлен";
+
+                StopDisplayContent(displayId);  
             }
         }
     }

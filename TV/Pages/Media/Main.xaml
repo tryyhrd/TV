@@ -8,7 +8,7 @@
       d:DesignHeight="500" d:DesignWidth="900"
       Title="Media" Background="White">
 
-    <Grid Margin="15">
+    <Grid Margin="10">
         <Grid.Resources>
             <ResourceDictionary Source="/Resources/Dictionary.xaml"/>
         </Grid.Resources>
@@ -18,14 +18,14 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Style="{StaticResource CardStyle}" Background="#F8FAFC" BorderBrush="#E2E8F0">
-            <Grid Margin="5">
-                <TextBlock Text="🎵 Управление плейлистами" 
+        <Border Grid.Row="0" Style="{StaticResource CardStyle}" Background="#F8FAFC" BorderBrush="#E2E8F0" Margin="0,0,-5, 10">
+            <Grid>
+                <TextBlock Text="Управление плейлистами" 
                           Style="{StaticResource PageHeaderStyle}"
                           Foreground="#1E293B"/>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,0,0,0">
-                    <Button Content="➕ Создать плейлист" Click="CreatePlaylist" 
+                    <Button Content="Создать плейлист" Click="CreatePlaylist" 
                             Style="{StaticResource ModernButton}" 
                             Background="#065F46"
                             Foreground="White"
@@ -42,11 +42,11 @@
             </Grid>
         </Border>
 
-        <Grid Grid.Row="1" Margin="0,10,0,0">
+        <Grid Grid.Row="1" Margin="0,0,0,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="280"/>
-                <ColumnDefinition Width="8"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*" x:Name="leftColumn"/>
+                <ColumnDefinition Width="5" x:Name="gridSpliter"/>
+                <ColumnDefinition Width="0" x:Name="rightColumn"/>
             </Grid.ColumnDefinitions>
 
             <Border Grid.Column="0" Style="{StaticResource CardStyle}" 
@@ -65,57 +65,89 @@
                     </Border>
 
                     <ListView Grid.Row="1" x:Name="playlistsListView" 
-                              SelectionChanged="Playlist_Selected"
-                              BorderThickness="0" Background="Transparent"
-                              ItemsSource="{Binding Playlists}"
-                              ItemContainerStyle="{StaticResource ModernListViewItem}"
-                              ScrollViewer.VerticalScrollBarVisibility="Auto"
-                              Padding="8">
+          SelectionChanged="Playlist_Selected"
+          BorderThickness="0" Background="Transparent"
+          ItemsSource="{Binding Playlists}"
+          ScrollViewer.VerticalScrollBarVisibility="Auto"
+          Padding="8">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                <Setter Property="BorderBrush" Value="#F3F4F6"/>
+                                <Setter Property="Padding" Value="8,12"/>
+                                <Setter Property="Margin" Value="0"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListViewItem">
+                                            <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="0"
+                                Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Bd" Property="Background" Value="#F8FAFC"/>
+                                                    <Setter TargetName="Bd" Property="BorderBrush" Value="#E5E7EB"/>
+                                                </Trigger>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter TargetName="Bd" Property="Background" Value="#E0F2FE"/>
+                                                    <Setter TargetName="Bd" Property="BorderBrush" Value="#0EA5E9"/>
+                                                    <Setter TargetName="Bd" Property="BorderThickness" Value="0,0,0,2"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
 
-                                    <StackPanel Grid.Column="0">
-                                        <TextBlock Text="{Binding Name}" 
-                                                   FontWeight="SemiBold" 
-                                                   FontSize="13"
-                                                   Foreground="#1F2937"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="0"
+                           Text="{Binding Name}" 
+                           FontWeight="SemiBold" 
+                           FontSize="13"
+                           Foreground="#1F2937"
+                           TextTrimming="CharacterEllipsis"/>
+
+                                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,4,0,0">
                                         <TextBlock Text="{Binding ItemCount, StringFormat='{}Элементов: {0}'}" 
-                                                   FontSize="11" 
-                                                   Foreground="#6B7280"
-                                                   Margin="0,2,0,0"/>
-                                    </StackPanel>
-
-                                    <Border Grid.Column="1" 
-                                            Background="#F3F4F6" 
-                                            CornerRadius="4" 
-                                            Padding="4,2"
-                                            VerticalAlignment="Center">
+                               FontSize="10" 
+                               Foreground="#6B7280"/>
+                                        <TextBlock Text=" • " 
+                               FontSize="10" 
+                               Foreground="#D1D5DB"
+                               Margin="2,0"/>
                                         <TextBlock Text="{Binding Duration}" 
-                                                   FontSize="10" 
-                                                   Foreground="#4B5563" 
-                                                   FontWeight="Medium"/>
-                                    </Border>
+                               FontSize="10" 
+                               Foreground="#6B7280"/>
+                                    </StackPanel>
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-
                 </Grid>
             </Border>
 
-            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" 
-                         Background="Transparent"/>
+            <GridSplitter x:Name="splitterColumn" Grid.Column="1" Width="5" HorizontalAlignment="Stretch" 
+                         Background="Transparent" Visibility="Collapsed"/>
 
-            <Border Grid.Column="2" Style="{StaticResource CardStyle}" 
+            <Border x:Name="rightContentPanel" Grid.Column="2" Style="{StaticResource CardStyle}" 
                     Background="White" BorderBrush="#E2E8F0" BorderThickness="1"
-                    CornerRadius="8" Padding="0">
+                    CornerRadius="8" Padding="0" Visibility="Collapsed">
                 <Grid>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
@@ -124,24 +156,63 @@
                     <Border Grid.Row="0" Background="#F8FAFC" Padding="15,12" 
                             CornerRadius="8,8,0,0" BorderThickness="0,0,0,1" BorderBrush="#E2E8F0">
                         <Grid>
-                            <TextBlock x:Name="currentPlaylistName" 
-                                       Text="Выберите плейлист" 
-                                       FontWeight="SemiBold" 
-                                       Foreground="#374151"
-                                       VerticalAlignment="Center"/>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
 
-                            <Button Content="✏️ Переименовать" 
-                                    Click="RenamePlaylist" 
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <TextBlock x:Name="currentPlaylistName" 
+                                            Text="Выберите плейлист" 
+                                            FontWeight="SemiBold" 
+                                            FontSize="16"
+                                            Foreground="#1E293B"/>
+                                <TextBlock x:Name="currentPlaylistInfo"
+                                           Text=""
+                                           FontSize="11"
+                                           Foreground="#6B7280"
+                                           Margin="0,2,0,0"/>
+                            </StackPanel>
+
+                            <Button Grid.Column="1" 
+                                    Content="Изменить свойства" 
+                                    Click="ConfigurePlaylist" 
                                     Style="{StaticResource ModernButton}" 
                                     Background="#6B7280"
                                     Foreground="White"
                                     BorderThickness="0"
                                     Padding="10,5"
-                                    HorizontalAlignment="Right" />
+                                    VerticalAlignment="Center"/>
                         </Grid>
                     </Border>
 
-                    <DataGrid Grid.Row="1" x:Name="playlistContentGrid" 
+                    <Border Grid.Row="1" Background="#F8FAFC" Padding="12,8" 
+                            BorderThickness="0,0,0,1" BorderBrush="#E2E8F0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0"
+                                       Text="Описание:"
+                                       FontWeight="SemiBold"
+                                       FontSize="12"
+                                       Foreground="#374151"
+                                       VerticalAlignment="Top"
+                                       Margin="0,2,8,0"/>
+
+                            <TextBlock Grid.Column="1"
+                                       x:Name="playlistDescriptionText"
+                                       Text="Описание не указано"
+                                       FontSize="11"
+                                       Foreground="#6B7280"
+                                       TextWrapping="Wrap"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <DataGrid Grid.Row="2" x:Name="playlistContentGrid" 
                               AutoGenerateColumns="False" 
                               IsReadOnly="True"
                               HeadersVisibility="Column" 
@@ -187,6 +258,7 @@
                                         <Setter Property="TextAlignment" Value="Left"/>
                                         <Setter Property="Foreground" Value="#1F2937"/>
                                         <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                        <Setter Property="Margin" Value="10,0,0,0"/>
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
@@ -232,37 +304,37 @@
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal" 
-                                                    VerticalAlignment="Center"
-                                                    HorizontalAlignment="Center">
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Center">
                                             <Button Content="▲" 
-                                                    Click="MoveItemUp" 
-                                                    Tag="{Binding Id}"
-                                                    Style="{StaticResource ModernIconButton}" 
-                                                    Background="#6B7280"
-                                                    Width="22" 
-                                                    Height="22"
-                                                    FontSize="9"
-                                                    ToolTip="Поднять вверх"/>
+                                        Click="MoveItemUp" 
+                                        Tag="{Binding Id}"
+                                        Style="{StaticResource ModernIconButton}" 
+                                        Background="#6B7280"
+                                        Width="22" 
+                                        Height="22"
+                                        FontSize="9"
+                                        ToolTip="Поднять вверх"/>
                                             <Button Content="▼" 
-                                                    Click="MoveItemDown" 
-                                                    Tag="{Binding Id}"
-                                                    Style="{StaticResource ModernIconButton}" 
-                                                    Background="#6B7280" 
-                                                    Width="22" 
-                                                    Height="22"
-                                                    FontSize="9"
-                                                    Margin="2,0,0,0"
-                                                    ToolTip="Опустить вниз"/>
+                                        Click="MoveItemDown" 
+                                        Tag="{Binding Id}"
+                                        Style="{StaticResource ModernIconButton}" 
+                                        Background="#6B7280" 
+                                        Width="22" 
+                                        Height="22"
+                                        FontSize="9"
+                                        Margin="2,0,0,0"
+                                        ToolTip="Опустить вниз"/>
                                             <Button Content="🗑️" 
-                                                    Click="RemoveItem" 
-                                                    Tag="{Binding Id}"
-                                                    Style="{StaticResource ModernIconButton}" 
-                                                    Background="#DC2626" 
-                                                    Width="22" 
-                                                    Height="22"
-                                                    FontSize="9"
-                                                    Margin="2,0,0,0"
-                                                    ToolTip="Удалить"/>
+                                        Click="RemoveItem" 
+                                        Tag="{Binding Id}"
+                                        Style="{StaticResource ModernIconButton}" 
+                                        Background="#DC2626" 
+                                        Width="22" 
+                                        Height="22"
+                                        FontSize="9"
+                                        Margin="2,0,0,0"
+                                        ToolTip="Удалить"/>
                                         </StackPanel>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -270,32 +342,25 @@
                         </DataGrid.Columns>
                     </DataGrid>
 
-                    <Border Grid.Row="2" Background="#F8FAFC" Padding="12,8" 
-                            CornerRadius="0,0,8,8" BorderThickness="0,1,0,0" BorderBrush="#E2E8F0">
+                    <!-- Панель действий -->
+                    <Border Grid.Row="3" Background="#F8FAFC" Padding="12,8" 
+                CornerRadius="0,0,8,8" BorderThickness="0,1,0,0" BorderBrush="#E2E8F0">
                         <StackPanel Orientation="Horizontal">
                             <Button Content="📁 Добавить файлы" 
-                                    Click="AddMediaFiles" 
-                                    Style="{StaticResource ModernButton}" 
-                                    Background="#065F46"
-                                    Foreground="White"
-                                    BorderThickness="0"
-                                    Padding="12,6"/>
+                        Click="AddMediaFiles" 
+                        Style="{StaticResource ModernButton}" 
+                        Background="#065F46"
+                        Foreground="White"
+                        BorderThickness="0"
+                        Padding="12,6"/>
                             <Button Content="🌐 Добавить URL" 
-                                    Click="AddWebContent" 
-                                    Style="{StaticResource ModernButton}" 
-                                    Background="#374151" 
-                                    Foreground="White"
-                                    BorderThickness="0"
-                                    Padding="12,6"
-                                    Margin="0,0,0,0"/>
-                            <Button Content="⏱️ Настройки времени" 
-                                    Click="ConfigureTiming" 
-                                    Style="{StaticResource ModernButton}" 
-                                    Background="#6B7280" 
-                                    Foreground="White"
-                                    BorderThickness="0"
-                                    Padding="12,6"
-                                    Margin="8,0,0,0"/>
+                        Click="AddWebContent" 
+                        Style="{StaticResource ModernButton}" 
+                        Background="#374151" 
+                        Foreground="White"
+                        BorderThickness="0"
+                        Padding="12,6"
+                        Margin="8,0,0,0"/>
                         </StackPanel>
                     </Border>
                 </Grid>

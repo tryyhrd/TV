@@ -1,0 +1,235 @@
+﻿<Page x:Class="TV.Pages.Media.PlaylistSettings"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:TV.Pages.Media"
+      mc:Ignorable="d" 
+      d:DesignHeight="500" d:DesignWidth="900"
+      Title="Редактирование плейлиста" Background="White">
+
+    <Grid Margin="8">
+        <Grid.Resources>
+            <ResourceDictionary Source="/Resources/Dictionary.xaml"/>
+        </Grid.Resources>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок - компактный -->
+        <Border Grid.Row="0" Style="{StaticResource CardStyle}" Background="#F8FAFC" BorderBrush="#E2E8F0" Padding="8">
+            <Grid>
+                <TextBlock Text="Настройки плейлиста" 
+                          FontWeight="SemiBold" 
+                          FontSize="16"
+                          Foreground="#1E293B"
+                          VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+
+        <!-- Основной контент - компактный -->
+        <Border Grid.Row="1" Style="{StaticResource CardStyle}" Margin="0,5,0,0" Padding="5">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
+                <StackPanel Margin="5">
+
+                    <!-- Название плейлиста -->
+                    <Grid Margin="0,0,0,8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Text="Название плейлиста" 
+                                   FontWeight="SemiBold" 
+                                   FontSize="13"
+                                   Foreground="#374151" 
+                                   Margin="0,0,0,3"/>
+
+                        <TextBox Grid.Row="1" x:Name="playlistNameTextBox" 
+                                 Text="{Binding PlaylistName, UpdateSourceTrigger=PropertyChanged}"
+                                 Background="White"
+                                 BorderBrush="#D1D5DB"
+                                 BorderThickness="1"
+                                 Padding="6,4"
+                                 Height="30" 
+                                 FontSize="13"
+                                 VerticalContentAlignment="Center"
+                                 ToolTip="Введите название плейлиста"/>
+                    </Grid>
+
+                    <!-- Описание -->
+                    <Grid Margin="0,0,0,8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Text="Описание" 
+                                   FontWeight="SemiBold" 
+                                   FontSize="13"
+                                   Foreground="#374151" 
+                                   Margin="0,0,0,3"/>
+
+                        <TextBox Grid.Row="1" x:Name="descriptionTextBox" 
+                                 Text="{Binding Description}"
+                                 Background="White"
+                                 BorderBrush="#D1D5DB"
+                                 BorderThickness="1"
+                                 Padding="6,4"
+                                 Height="45" 
+                                 FontSize="13"
+                                 TextWrapping="Wrap" 
+                                 AcceptsReturn="True"
+                                 VerticalContentAlignment="Top"
+                                 ToolTip="Введите описание плейлиста"/>
+                    </Grid>
+
+                    <!-- Разделитель -->
+                    <Rectangle Height="1" Fill="#E5E7EB" Margin="0,0,0,8"/>
+
+                    <!-- Настройки воспроизведения -->
+                    <TextBlock Text="⚙️ Настройки воспроизведения" 
+                               FontWeight="SemiBold" 
+                               FontSize="14"
+                               Foreground="#1E293B"
+                               Margin="0,0,0,6"/>
+
+                    <!-- Зацикливание -->
+                    <Grid Margin="0,0,0,6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Зациклить воспроизведение" 
+                                       FontWeight="SemiBold" 
+                                       FontSize="12"
+                                       Foreground="#374151"/>
+                            <TextBlock Text="Плейлист будет повторяться бесконечно" 
+                                       FontSize="10" 
+                                       Foreground="#6B7280" 
+                                       Margin="0,1,0,0"/>
+                        </StackPanel>
+
+                        <ToggleButton Grid.Column="1" x:Name="loopToggle"
+                                      IsChecked="{Binding IsLooped}"
+                                      Style="{StaticResource SimpleToggleButton}"/>
+                    </Grid>
+
+                    <!-- Случайный порядок -->
+                    <Grid Margin="0,0,0,6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Случайный порядок воспроизведения" 
+                                       FontWeight="SemiBold" 
+                                       FontSize="12"
+                                       Foreground="#374151"/>
+                            <TextBlock Text="Элементы плейлиста воспроизводятся в случайном порядке" 
+                                       FontSize="10" 
+                                       Foreground="#6B7280" 
+                                       Margin="0,1,0,0"/>
+                        </StackPanel>
+
+                        <ToggleButton Grid.Column="1" x:Name="shuffleToggle"
+                                      IsChecked="{Binding Shuffle}"
+                                      Style="{StaticResource SimpleToggleButton}"/>
+                    </Grid>
+
+                    <!-- Разделитель -->
+                    <Rectangle Height="1" Fill="#E5E7EB" Margin="0,0,0,8"/>
+
+                    <!-- Настройки времени -->
+                    <TextBlock Text="⏱️ Настройки времени" 
+                               FontWeight="SemiBold" 
+                               FontSize="14"
+                               Foreground="#1E293B"
+                               Margin="0,0,0,6"/>
+
+                    <!-- Время показа по умолчанию -->
+                    <Grid Margin="0,0,0,8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Text="Время показа по умолчанию (секунды)" 
+                                   FontWeight="SemiBold" 
+                                   FontSize="12"
+                                   Foreground="#374151" 
+                                   Margin="0,0,0,3"/>
+
+                        <StackPanel Grid.Row="1" Orientation="Horizontal">
+                            <TextBox x:Name="defaultDurationTextBox" 
+                                     Text="{Binding DefaultDuration}"
+                                     Background="White"
+                                     BorderBrush="#D1D5DB"
+                                     BorderThickness="1"
+                                     Padding="6,4"
+                                     Width="70" 
+                                     Height="28" 
+                                     FontSize="12"
+                                     VerticalContentAlignment="Center"
+                                     ToolTip="Время в секундах для изображений"/>
+
+                            <TextBlock Text="сек." 
+                                      VerticalAlignment="Center" 
+                                      FontSize="11"
+                                      Foreground="#6B7280"
+                                      Margin="6,0,0,0"/>
+
+                            <Button Content="Применить ко всем" 
+                                    Click="ApplyDefaultDurationToAll"
+                                    Background="#6B7280"
+                                    Foreground="White"
+                                    BorderThickness="0"
+                                    Height="28"
+                                    Padding="8,0"
+                                    FontSize="11"
+                                    Margin="8,0,0,0"
+                                    Cursor="Hand"
+                                    ToolTip="Установить это время для всех изображений в плейлисте"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Кнопки действий - компактные -->
+        <Border Grid.Row="2" Style="{StaticResource CardStyle}" Margin="0,5,0,0" 
+                Background="#F8FAFC" BorderBrush="#E2E8F0" Padding="5">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Отмена" 
+                        Click="Cancel_Click"
+                        Background="#6B7280"
+                        Foreground="White"
+                        BorderThickness="0"
+                        Padding="12,6"
+                        FontSize="12"
+                        Height="28"
+                        MinWidth="70"
+                        Cursor="Hand"
+                        Style="{StaticResource ModernIconButton}"/>
+                <Button Content="Сохранить" 
+                        Click="Save"
+                        Background="#065F46"
+                        Foreground="White"
+                        BorderThickness="0"
+                        Padding="12,6"
+                        FontSize="12"
+                        Height="28"
+                        MinWidth="70"
+                        Margin="6,0,0,0"
+                        Cursor="Hand"
+                        Style="{StaticResource ModernIconButton}"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

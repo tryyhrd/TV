@@ -1,14 +1,16 @@
-﻿using System.IO;
+﻿using System.Threading.Tasks;
 using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
+using System.Windows.Forms;
+using Microsoft.Web.WebView2.Wpf;
 using TV.Classes;
 using TV.Classes.Display;
-using System.Windows.Input;
-using System.Windows.Forms;
-using System.Linq;
 
 namespace TV.Windows
 {
@@ -19,21 +21,27 @@ namespace TV.Windows
     {
         private MediaElement _mediaElement;
         private Image _imageElement;
-        private System.Windows.Controls.WebBrowser _webBrowser;
-        private DisplayPlayer _currentPlayer;
+        private WebView2 _webView;
+        private DispatcherTimer _contentTimer;
+
+        private Playlist _currentPlaylist;
+        private ContentItem _currentItem;
+        public event Action PlaylistEnded;
+
+        private int _currentIndex = 0;
+
         public ContentToDisplay(Display display)
         {
             InitializeComponent();
 
             CreateMediaElements();
-            SetupWindow(display); 
+            SetupWindow(display);
         }
 
         private void SetupWindow(Display display)
         {
             WindowStyle = WindowStyle.None;
             WindowState = WindowState.Maximized;
-            //Topmost = true;
 
             var targetScreen = FindTargetScreen(display);
             SetWindowToScreen(this, targetScreen);
@@ -45,6 +53,20 @@ namespace TV.Windows
                 if (e.Key == Key.Escape || e.Key == Key.Q)
                 {
                     Close();
+                }
+                else if (e.Key == Key.Space)
+                {
+                    if (_mediaElement.Visibility == Visibility.Visible)
+                    {
+                        if (_mediaElement.CanPause && _mediaElement.Position > TimeSpan.Zero)
+                        {
+                            _mediaElement.Pause();
+                        }
+                        else
+                        {
+                            _mediaElement.Play();
+                        }
+                    }
                 }
             };
         }
@@ -84,32 +106,50 @@ namespace TV.Windows
 
         private void CreateMediaElements()
         {
+            var grid = new Grid();
+            grid.Background = Brushes.Black;
+
             _mediaElement = new MediaElement
             {
                 LoadedBehavior = MediaState.Manual,
-                UnloadedBehavior = MediaState.Stop
+                UnloadedBehavior = MediaState.Stop,
+                Visibility = Visibility.Collapsed
             };
+
+            _mediaElement.MediaEnded += (s, e) => NextItem();
+            _mediaElement.MediaFailed += (s, e) => NextItem();
 
             _imageElement = new Image
             {
-                Stretch = Stretch.Uniform
+                Stretch = Stretch.Uniform,
+                Visibility = Visibility.Collapsed
             };
 
-            _webBrowser = new System.Windows.Controls.WebBrowser();
-
-            _mediaElement.MediaEnded += (s, e) => _currentPlayer?.NextItem();
-
-            var grid = new Grid();
+            _webView = new WebView2
+            {
+                Visibility = Visibility.Collapsed
+            };
 
             grid.Children.Add(_mediaElement);
             grid.Children.Add(_imageElement);
-            grid.Children.Add(_webBrowser);
-
-            _mediaElement.Visibility = Visibility.Collapsed;
-            _imageElement.Visibility = Visibility.Collapsed;
-            _webBrowser.Visibility = Visibility.Collapsed;
+            grid.Children.Add(_webView);
 
             Content = grid;
+
+            _contentTimer = new DispatcherTimer();
+            _contentTimer.Tick += (s, e) => NextItem();
+        }
+
+        private void PlayCurrentItem()
+        {
+            if (_currentPlaylist?.Items == null || _currentIndex >= _currentPlaylist.Items.Count)
+            {
+                PlaylistEnded?.Invoke();
+                return;
+            }
+
+            _currentItem = _currentPlaylist.Items[_currentIndex];
+            PlayContent(_currentItem);
         }
 
         public void PlayContent(ContentItem content)
@@ -118,44 +158,216 @@ namespace TV.Windows
 
             _mediaElement.Visibility = Visibility.Collapsed;
             _imageElement.Visibility = Visibility.Collapsed;
-            _webBrowser.Visibility = Visibility.Collapsed;
+            _webView.Visibility = Visibility.Collapsed;
 
-            switch (content.Type)
+            try
             {
-                case "video":
-                    _mediaElement.Source = new Uri(content.FilePath);
-                    _mediaElement.Visibility = Visibility.Visible;
-                    _mediaElement.Play();
-                    break;
-                case "image":
-                    _imageElement.Source = new BitmapImage(new Uri(content.FilePath));
-                    _imageElement.Visibility = Visibility.Visible;
-                    break;
-                case "web":
-                    _webBrowser.Navigate(content.FilePath);
-                    _webBrowser.Visibility = Visibility.Visible;
-                    break;
+                switch (content.Type.ToLower())
+                {
+                    case "video":
+                        PlayVideoContent(content);
+                        break;
+
+                    case "image":
+                        PlayImageContent(content);
+                        break;
+
+                    case "web":
+                        PlayWebContent(content);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка в PlayContent: {ex.Message}");
             }
         }
 
-        public void StartPlaylist(Playlist playlist)
+        private void NextItem()
         {
-            _currentPlayer = new DisplayPlayer(playlist, this);
+            _contentTimer.Stop();
+            _currentIndex++;
 
-            _currentPlayer.PlaylistEnded += () =>
+            if (_currentIndex >= _currentPlaylist?.Items.Count)
             {
-                Dispatcher.Invoke(Close);
-            };
+                PlaylistEnded?.Invoke();
+                return;
+            }
 
-            _currentPlayer.Start();
+            PlayCurrentItem();
+        }
+
+        private void PlayVideoContent(ContentItem content)
+        {
+            try
+            {
+                _mediaElement.Source = new Uri(content.FilePath);
+                _mediaElement.Visibility = Visibility.Visible;
+                _mediaElement.Play();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка воспроизведения видео: {ex.Message}");
+                NextItem();
+            }
+        }
+
+        private void PlayImageContent(ContentItem content)
+        {
+            try
+            {
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(content.FilePath);
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.EndInit();
+
+                _imageElement.Source = bitmap;
+                _imageElement.Visibility = Visibility.Visible;
+
+                int duration = content.Duration > 0 ? content.Duration : 5;
+                _contentTimer.Interval = TimeSpan.FromSeconds(duration);
+                _contentTimer.Start();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка загрузки изображения: {ex.Message}");
+                NextItem();
+            }
+        }
+
+        private async void PlayWebContent(ContentItem content)
+        {
+            try
+            {
+                string url = NormalizeWebUrl(content.FilePath);
+                Console.WriteLine($"Загружаем: {url}");
+
+                await InitializeWebView2Safe();
+
+                _webView.Visibility = Visibility.Visible;
+                _webView.Source = new Uri(url);
+
+                int duration = content.Duration > 0 ? content.Duration : 15;
+                _contentTimer.Interval = TimeSpan.FromSeconds(duration);
+                _contentTimer.Start();
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка загрузки веб-контента: {ex.Message}");
+                await ShowErrorSafe(ex.Message, content.FilePath);
+            }
+        }
+        private async Task ShowErrorSafe(string errorMessage, string url)
+        {
+            try
+            {
+                if (_webView.CoreWebView2 == null)
+                {
+                    await _webView.EnsureCoreWebView2Async();
+                }
+
+                string errorHtml = $@"
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='utf-8'>
+                <style>
+                    body {{
+                        background: white;
+                        margin: 0;
+                        padding: 40px;
+                        font-family: Arial, sans-serif;
+                        color: #333;
+                    }}
+                    .error-container {{
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                        border: 2px solid #dc3545;
+                        border-radius: 10px;
+                        background: #f8f9fa;
+                    }}
+                    .error-icon {{
+                        font-size: 48px;
+                        text-align: center;
+                        margin-bottom: 20px;
+                    }}
+                </style>
+            </head>
+            <body>
+                <div class='error-container'>
+                    <div class='error-icon'>⚠️</div>
+                    <h2>Ошибка загрузки страницы</h2>
+                    <p><strong>Сообщение:</strong> {errorMessage}</p>
+                    <p><strong>URL:</strong> {url}</p>
+                    <p><em>Страница автоматически закроется через 5 секунд</em></p>
+                </div>
+            </body>
+            </html>";
+
+                _webView.NavigateToString(errorHtml);
+                _webView.Visibility = Visibility.Visible;
+
+                _contentTimer.Interval = TimeSpan.FromSeconds(5);
+                _contentTimer.Start();
+            }
+            catch (Exception innerEx)
+            {
+                Console.WriteLine($"Критическая ошибка показа страницы ошибки: {innerEx.Message}");
+
+                _webView.Visibility = Visibility.Visible;
+                _contentTimer.Interval = TimeSpan.FromSeconds(5);
+                _contentTimer.Start();
+            }
+        }
+
+        private async Task InitializeWebView2Safe()
+        {
+            if (_webView.CoreWebView2 == null)
+            {
+                await _webView.EnsureCoreWebView2Async();
+
+                if (_webView.CoreWebView2 != null)
+                {
+                    _webView.CoreWebView2.Settings.AreDevToolsEnabled = false;
+                    _webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+                }
+            }
+        }
+
+        private string NormalizeWebUrl(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+                return "about:blank";
+
+            if (!url.StartsWith("http://") && !url.StartsWith("https://") && !url.StartsWith("file://"))
+            {
+                return "https://" + url;
+            }
+
+            return url;
+        }
+
+        public async void StartPlaylist(Playlist playlist)
+        {
+            _currentPlaylist = playlist;
+            _currentIndex = 0;
+
+            if (_currentPlaylist.Items == null || !_currentPlaylist.Items.Any())
+            {
+                var connection = new Classes.Common.Connection();
+                _currentPlaylist.Items = await connection.GetPlaylistItemsAsync(_currentPlaylist.Id);
+            }
+
+            PlayCurrentItem();
         }
 
         public void StopPlayback()
         {
-            _currentPlayer?.Stop();
-            _currentPlayer = null;
-
-            _mediaElement.Stop();
+            _contentTimer?.Stop();
+            _mediaElement?.Stop();
             _mediaElement.Source = null;
             _imageElement.Source = null;
         }

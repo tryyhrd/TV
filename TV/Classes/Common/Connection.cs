@@ -27,7 +27,8 @@ namespace TV.Classes.Common
                     {
                         Id = reader.GetInt32(0),
                         Name = reader.GetString(1),
-                        IsActive = reader.GetBoolean(2)
+                        Description = reader.GetString(2),
+                        IsActive = reader.GetBoolean(3)
                     };
 
                     playlist.Items = await GetPlaylistItemsAsync(playlist.Id);

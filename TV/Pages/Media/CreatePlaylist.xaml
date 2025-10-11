@@ -5,7 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:TV.Pages.Media"
       mc:Ignorable="d" 
-      d:DesignHeight="300" d:DesignWidth="600"
+      d:DesignHeight="400" d:DesignWidth="600"
       Title="Add"
       Background="White">
 
@@ -14,7 +14,7 @@
     </Page.Resources>
 
     <Border CornerRadius="8" BorderThickness="1" BorderBrush="#E5E7EB" Background="White">
-        <Grid Margin="20">
+        <Grid Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -22,9 +22,9 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <Border Grid.Row="0" Background="#F8F9FA" CornerRadius="6,6,0,0" Padding="15,10" Margin="-20, -20, -20, 15">
+            <Border Grid.Row="0" Background="#F8F9FA" CornerRadius="6,6,0,0" Padding="10,5" Margin="-10, -10, -10, 15">
                 <Grid>
-                    <TextBlock Text="🎵 Создание нового плейлиста" 
+                    <TextBlock Text="Создание нового плейлиста" 
                                Style="{StaticResource PageHeaderStyle}" 
                                FontSize="16"/>
 
@@ -43,20 +43,60 @@
             </Border>
 
             <StackPanel Grid.Row="1" Margin="0,0,0,20">
-                <TextBlock Text="Название плейлиста:" 
-                           FontWeight="SemiBold" 
-                           Margin="0,0,0,8"
-                           Foreground="#374151"/>
+                <!-- Название плейлиста -->
+                <Grid Margin="0,0,0,15">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                <TextBox x:Name="playlistNameTextBox" 
-                         Height="35"
-                         FontSize="14"
-                         BorderThickness="1"
-                         BorderBrush="#D1D5DB"
-                         Background="#F9FAFB"
-                         TextChanged="PlaylistName_TextChanged"
-                         MaxLength="100"
-                         VerticalContentAlignment="Center"/>
+                    <TextBlock Grid.Row="0" Text="Название плейлиста" 
+                               FontWeight="SemiBold" 
+                               FontSize="13"
+                               Foreground="#374151" 
+                               Margin="0,0,0,3"/>
+
+                    <TextBox Grid.Row="1" x:Name="playlistNameTextBox" 
+                             Text="{Binding PlaylistName, UpdateSourceTrigger=PropertyChanged}"
+                             Background="White"
+                             BorderBrush="#D1D5DB"
+                             BorderThickness="1"
+                             Padding="6,4"
+                             Height="30" 
+                             FontSize="13"
+                             VerticalContentAlignment="Center"
+                             ToolTip="Введите название плейлиста"
+                             TextChanged="PlaylistName_TextChanged"
+                             MaxLength="100"/>
+                </Grid>
+
+                <!-- Описание -->
+                <Grid Margin="0,0,0,15">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="Описание" 
+                               FontWeight="SemiBold" 
+                               FontSize="13"
+                               Foreground="#374151" 
+                               Margin="0,0,0,3"/>
+
+                    <TextBox Grid.Row="1" x:Name="description" 
+                             Text="{Binding Description}"
+                             Background="White"
+                             BorderBrush="#D1D5DB"
+                             BorderThickness="1"
+                             Padding="6,4"
+                             Height="45" 
+                             FontSize="13"
+                             TextWrapping="Wrap" 
+                             AcceptsReturn="True"
+                             VerticalContentAlignment="Top"
+                             ToolTip="Введите описание плейлиста"
+                             MaxLength="500"/>
+                </Grid>
 
                 <TextBlock x:Name="validationText" 
                            Text="Введите название плейлиста" 
@@ -64,7 +104,6 @@
                            Margin="0,5,0,0"
                            Foreground="#6B7280"
                            Visibility="Visible"/>
-
             </StackPanel>
 
             <Border Grid.Row="2" Height="1" Background="#E5E7EB" Margin="-20,0,-20,15"/>

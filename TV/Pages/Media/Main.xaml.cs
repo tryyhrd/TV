@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using TV.Classes;
 using TV.Classes.ViewModels;
 
@@ -36,70 +36,41 @@ namespace TV.Pages.Media
             }
         }
 
-        private async void Playlist_Selected(object sender, SelectionChangedEventArgs e)
+        private void Playlist_Selected(object sender, SelectionChangedEventArgs e)
         {
             selectedPlaylist = playlistsListView.SelectedItem as Playlist;
 
-            var connection = new Classes.Common.Connection();
-            var items = await connection.GetPlaylistItemsAsync(selectedPlaylist.Id);
+            if ( selectedPlaylist == null )
+            {
+                return;
+            }
 
-            if (items != null)
-                playlistContentGrid.ItemsSource = items;
-        }
+            leftColumn.Width = new GridLength(1, GridUnitType.Auto);
+            rightColumn.Width = new GridLength(1, GridUnitType.Star);
+            gridSpliter.Width = new GridLength(5, GridUnitType.Pixel);
 
-        private void AddPlaylist(object sender, RoutedEventArgs e)
-        {
+            splitterColumn.Visibility = Visibility.Visible;
+            rightContentPanel.Visibility = Visibility.Visible;
 
-        }
+            currentPlaylistName.Text = selectedPlaylist.Name;
+            currentPlaylistInfo.Text = $"{selectedPlaylist.ItemCount} элементов • {selectedPlaylist.Duration}";
 
-        private void DeletePlaylist(object sender, RoutedEventArgs e)
-        {
+            if (!string.IsNullOrEmpty(selectedPlaylist.Description))
+            {
+                playlistDescriptionText.Text = selectedPlaylist.Description;
+                playlistDescriptionText.Foreground = new SolidColorBrush(Color.FromRgb(107, 114, 128)); 
+            }
+            else
+            {
+                playlistDescriptionText.Text = "Описание не указано";
+                playlistDescriptionText.Foreground = new SolidColorBrush(Color.FromRgb(156, 163, 175));
+            }
 
-        }
+            //var connection = new Classes.Common.Connection();
+            //var items = await connection.GetPlaylistItemsAsync(selectedPlaylist.Id);
+            //if (items != null)
 
-        private void AddFile(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void AddUrl(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void MoveUp(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void MoveDown(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void RemoveFromPlaylist(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void StartPlayback(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void StopPlayback(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void Settings(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void Close(object sender, RoutedEventArgs e)
-        {
-
+            playlistContentGrid.ItemsSource = selectedPlaylist.Items;
         }
 
         private void CreatePlaylist(object sender, RoutedEventArgs e)
@@ -107,60 +78,44 @@ namespace TV.Pages.Media
             MainWindow.main.mainFrame.Navigate(new CreatePlaylist());
         }
 
-        private void DeleteSelectedPlaylists(object sender, RoutedEventArgs e)
+        private async void MoveItemUp(object sender, RoutedEventArgs e)
         {
+            if (sender is Button button && button.Tag is int itemId)
+            {
+                if (selectedPlaylist == null) return;
 
+                bool moved = selectedPlaylist.MoveItemUp(itemId);
+                if (moved)
+                {
+                    playlistContentGrid.Items.Refresh();
+
+                    await viewModel.UpdatePlaylistOrderInDatabase(selectedPlaylist);
+                }
+            }
         }
 
-        private void ImportPlaylist(object sender, RoutedEventArgs e)
+        private async void MoveItemDown(object sender, RoutedEventArgs e)
         {
+            if (sender is Button button && button.Tag is int itemId)
+            {
+                var selectedPlaylist = playlistsListView.SelectedItem as Playlist;
+                if (selectedPlaylist == null) return;
 
-        }
+                bool moved = selectedPlaylist.MoveItemDown(itemId);
 
-        private void ExportPlaylist(object sender, RoutedEventArgs e)
-        {
+                if (moved)
+                {
+                    playlistContentGrid.Items.Refresh();
 
-        }
-
-        private void RenamePlaylist(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void TogglePreview(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void MoveItemUp(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void MoveItemDown(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void RemoveItem(object sender, RoutedEventArgs e)
-        {
-
+                    await viewModel.UpdatePlaylistOrderInDatabase(selectedPlaylist);
+                }
+            }
         }
 
         private void AddMediaFiles(object sender, RoutedEventArgs e)
         {
             if (selectedPlaylist != null)
                 MainWindow.main.mainFrame.Navigate(new AddMedia(selectedPlaylist));
-        }
-
-        private void AddWebContent(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void ConfigureTiming(object sender, RoutedEventArgs e)
-        {
-
         }
 
         private async void DeleteSelectedPlaylist(object sender, RoutedEventArgs e)
@@ -207,6 +162,67 @@ namespace TV.Pages.Media
             {
                 playlistsListView.SelectionChanged += Playlist_Selected;
             }
+        }
+
+        private void ConfigurePlaylist(object sender, RoutedEventArgs e)
+        {
+            MainWindow.main.mainFrame.Navigate(new PlaylistSettings());
+        }
+
+
+        private void RemoveItem(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void AddWebContent(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void AddPlaylist(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void DeletePlaylist(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void AddFile(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void AddUrl(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void RemoveFromPlaylist(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void StartPlayback(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void StopPlayback(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Settings(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Close(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

@@ -13,7 +13,7 @@
     </Page.Resources>
 
     <Border CornerRadius="8" BorderThickness="1" BorderBrush="#E5E7EB" Background="White">
-        <Grid Margin="15">
+        <Grid Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -22,9 +22,9 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <Border Grid.Row="0" Background="#F8F9FA" CornerRadius="6,6,0,0" Padding="12,8" Margin="-15, -15, -15, 10">
+            <Border Grid.Row="0" Background="#F8F9FA" CornerRadius="6,6,0,0" Padding="12,8" Margin="-10, -10, -10, 10">
                 <Grid>
-                    <TextBlock Text="🎵 Добавление медиа в плейлист" 
+                    <TextBlock Text="Добавление медиа в плейлист" 
                                Style="{StaticResource PageHeaderStyle}" 
                                FontSize="14"
                                VerticalAlignment="Center"/>

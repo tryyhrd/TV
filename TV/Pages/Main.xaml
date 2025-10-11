@@ -8,7 +8,7 @@
       d:DesignHeight="500" d:DesignWidth="900"
       Title="Main" Background="White">
 
-    <Grid Margin="15">
+    <Grid Margin="10">
         <Grid.Resources>
             <ResourceDictionary Source="/Resources/Dictionary.xaml"/>
         </Grid.Resources>
@@ -129,6 +129,7 @@
                                 <Setter Property="TextAlignment" Value="Left"/>
                                 <Setter Property="Foreground" Value="#1F2937"/>
                                 <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                <Setter Property="Margin" Value="10,0,0,0"/>
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
@@ -177,6 +178,7 @@
                                 <Setter Property="TextAlignment" Value="Left"/>
                                 <Setter Property="Foreground" Value="#1F2937"/>
                                 <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                <Setter Property="Margin" Value="10,0,0,0"/>
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
