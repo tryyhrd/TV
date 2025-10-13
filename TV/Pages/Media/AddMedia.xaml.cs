@@ -1,4 +1,5 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Microsoft.WindowsAPICodePack.Shell;
+using MySqlConnector;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -17,7 +18,7 @@ namespace TV.Pages.Media
     /// </summary>
     public partial class AddMedia : Page
     {
-        private List<ContentItem> selectedFiles = new List<ContentItem>();
+        private List<PlaylistItem> selectedFiles = new List<PlaylistItem>();
         private Playlist selectedPlaylist;
         public AddMedia(Playlist selectedPlaylist)
         {
@@ -26,7 +27,7 @@ namespace TV.Pages.Media
             this.selectedPlaylist = selectedPlaylist;
         }
 
-        private async Task<bool> AddFilesToPlaylistAsync(int playlistId, List<ContentItem> files)
+        private async Task<bool> AddFilesToPlaylistAsync(int playlistId, List<PlaylistItem> files)
         {
             using (var connection = new MySqlConnection(Classes.Common.Connection.connectionString))
             {
@@ -84,13 +85,18 @@ namespace TV.Pages.Media
                     var extension = Path.GetExtension(filePath).ToLower().TrimStart('.');
                     var mediaType = GetMediaType(extension);
 
-                    selectedFiles.Add(new ContentItem
+                    var duration = 0;
+                    if (mediaType == "video")
+                        duration = GetVideoDuration(filePath);
+                        
+                    selectedFiles.Add(new PlaylistItem
                     {
                         Name = Path.GetFileNameWithoutExtension(filePath),
                         Type = mediaType,
                         Order = order,
                         FilePath = filePath,
-                        Size = fileInfo.Length
+                        Size = fileInfo.Length,
+                        Duration = duration
                     });
 
                     order++;
@@ -98,6 +104,33 @@ namespace TV.Pages.Media
 
                 UpdateUI();
             }
+        }
+
+        private int GetVideoDuration(string filePath)
+        {
+            try
+            {
+                if (!File.Exists(filePath))
+                    return 30;
+
+                using (var shellFile = ShellObject.FromParsingName(filePath))
+                {
+                    var durationProp = shellFile.Properties.System.Media.Duration;
+                    if (durationProp?.Value != null)
+                    {
+                        ulong durationTicks = Convert.ToUInt64(durationProp.Value);
+                        int durationSeconds = (int)(durationTicks / 10000000);
+
+                        if (durationSeconds > 0 && durationSeconds < 86400)
+                        {
+                            return durationSeconds;
+                        }
+                    }
+                }
+            }
+            catch {}
+
+            return 30;
         }
 
         private static readonly Dictionary<string, string> mediaTypes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)

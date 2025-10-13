@@ -24,7 +24,7 @@ namespace TV.Classes.Display
             {
                 _isSelected = value;
                 OnPropertyChanged(nameof(IsSelected));
-                new MainViewModel().UpdateActiveDisplaysString();
+                new DisplayViewModel().UpdateActiveDisplaysString();
             }
         }
 

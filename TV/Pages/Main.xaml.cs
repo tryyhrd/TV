@@ -19,7 +19,7 @@ namespace TV.Pages
     public partial class Main : Page
     {
 
-        private MainViewModel viewModel;
+        private DisplayViewModel viewModel;
         private PlaylistsViewModel playlistsViewModel = new PlaylistsViewModel();
         private List<Playlist> _playlists;
 
@@ -30,7 +30,7 @@ namespace TV.Pages
         {
             InitializeComponent();
 
-            viewModel = new MainViewModel();
+            viewModel = new DisplayViewModel();
 
             DataContext = viewModel;
             displaysGrid.ItemsSource = viewModel.Displays;
@@ -69,20 +69,23 @@ namespace TV.Pages
 
                 var content = await DisplayContent.LoadByDisplayIdAsync(display.Id);
 
-                switch (content.ContentType)
+                if (content != null)
                 {
-                    case "Плейлист":
-                        display.Status = "Плейлист установлен";
-                        break;
-                    case "Медиафайл":
-                        display.Status = "Медиа контент установлен";
-                        break;
-                    case "Веб":
-                        display.Status = "Веб-контент установлен";
-                        break;
-                    case null:
-                        display.Status = "Дисплей неактивен";
-                        break;
+                    switch (content.ContentType)
+                    {
+                        case "Плейлист":
+                            display.Status = "Плейлист установлен";
+                            break;
+                        case "Медиафайл":
+                            display.Status = "Медиа контент установлен";
+                            break;
+                        case "Веб":
+                            display.Status = "Веб-контент установлен";
+                            break;
+                        case null:
+                            display.Status = "Дисплей неактивен";
+                            break;
+                    }
                 }
 
                 viewModel.Displays.Add(display);
@@ -217,9 +220,11 @@ namespace TV.Pages
 
             try
             {
+                string contentMode = "";
                 string contentType = "";
                 string displayName = "";
                 string contentValue = "";
+                int? playlistId = null;
 
                 switch (contentTypeCombo.SelectedIndex)
                 {
@@ -232,24 +237,33 @@ namespace TV.Pages
                             return;
                         }
 
-                        contentType = "Плейлист";
+                        contentMode = "PLAYLIST";
+                        contentType = null; 
                         displayName = selectedPlaylist.Name;
-                        contentValue = selectedPlaylist.Id.ToString();
+                        contentValue = null;
+                        playlistId = selectedPlaylist.Id;
 
                         foreach (var display in selectedDisplays)
                         {
                             var displayContent = new DisplayContent()
                             {
                                 DisplayId = display.Id,
+                                ContentMode = contentMode,
                                 ContentType = contentType,
-                                ContentValue = selectedPlaylist.Id.ToString(),
-                                DisplayName = selectedPlaylist.Name,
-                                Playlist = selectedPlaylist,
-                                PlaylistId = selectedPlaylist.Id,
+                                ContentValue = contentValue,
+                                Name = displayName,
+                                PlaylistId = playlistId,
+                                ScheduleId = null,
+                                DisplayDuration = null, 
+                                StartDateTime = null,
+                                EndDateTime = null,
+                                IsLoop = true,
+                                Priority = 1,
+                                IsActive = true
                             };
                             await displayContent.SaveToDatabaseAsync();
 
-                            display.ContentType = contentType;
+                            display.ContentType = "Плейлист";
                             display.CurrentContent = displayName;
                             display.Status = "Плейлист установлен";
                         }
@@ -271,32 +285,32 @@ namespace TV.Pages
                         var extension = Path.GetExtension(selectedFile.FileName).ToLower().TrimStart('.');
                         var mediaType = GetMediaType(extension);
 
-                        var newContentItem = new ContentItem
-                        {
-                            Name = Path.GetFileNameWithoutExtension(selectedFile.FileName),
-                            Type = mediaType,
-                            Order = 1,
-                            FilePath = selectedFile.FileName,
-                            Size = fileInfo.Length
-                        };
-
-                        contentType = "Медиафайл";
+                        contentMode = "SIMPLE";
+                        contentType = mediaType.ToLower();
                         displayName = Path.GetFileName(selectedFile.FileName);
+                        contentValue = selectedFile.FileName;
+                        playlistId = null;
 
                         foreach (var display in selectedDisplays)
                         {
                             var displayContent = new DisplayContent()
                             {
                                 DisplayId = display.Id,
+                                ContentMode = contentMode,
                                 ContentType = contentType,
-                                ContentValue = selectedFile.FileName,
-                                DisplayName = selectedFile.SafeFileName,
-                                Playlist = null,
-                                PlaylistId = null
+                                ContentValue = contentValue,
+                                Name = displayName,
+                                PlaylistId = null,
+                                ScheduleId = null,
+                                DisplayDuration = null,
+                                StartDateTime = null,
+                                EndDateTime = null,
+                                IsLoop = true,
+                                Priority = 1,
+                                IsActive = true
                             };
                             await displayContent.SaveToDatabaseAsync();
 
-                            display.ContentType = contentType;
                             display.CurrentContent = displayName;
                             display.Status = "Контент установлен";
                         }
@@ -309,7 +323,8 @@ namespace TV.Pages
                             return;
                         }
 
-                        contentType = "Веб-страница";
+                        contentMode = "SIMPLE";
+                        contentType = "web";
                         contentValue = webUrlTextBox.Text;
 
                         try
@@ -327,22 +342,30 @@ namespace TV.Pages
                             var displayContent = new DisplayContent()
                             {
                                 DisplayId = display.Id,
+                                ContentMode = contentMode,
                                 ContentType = contentType,
                                 ContentValue = contentValue,
-                                DisplayName = displayName,
-                                PlaylistId = null
+                                Name = displayName,
+                                PlaylistId = null,
+                                ScheduleId = null,
+                                DisplayDuration = 300, 
+                                StartDateTime = null,
+                                EndDateTime = null,
+                                IsLoop = true,
+                                Priority = 1,
+                                IsActive = true
                             };
 
                             await displayContent.SaveToDatabaseAsync();
 
-                            display.ContentType = contentType;
+                            display.ContentType = "Веб-страница";
                             display.CurrentContent = displayName;
                             display.Status = "Веб-страница установлена";
                         }
                         break;
                 }
-                UpdateSelectionInfo();
 
+                UpdateSelectionInfo();
                 displaysGrid.Items.Refresh();
 
                 ShowSuccessMessage($"Контент применен к {selectedDisplays.Count} дисплеям");
@@ -367,26 +390,64 @@ namespace TV.Pages
                 }));
             };
 
-            switch (displayContent.ContentType)
+            switch (displayContent.ContentMode)
             {
-                case "Плейлист":
+                case "SIMPLE":
+                    ApplySimpleContent(window, display, displayContent);
+                    break;
+                case "PLAYLIST":
                     window.StartPlaylist(displayContent.Playlist);
                     display.Status = "Воспроизведение плейлиста";
                     break;
+                case "SCHEDULE":
+                    break;
+            }
+        }
 
-                case "Медиафайл":
-                    var mediaItem = new ContentItem
-                    {
-                        Type = GetMediaType(Path.GetExtension(displayContent.ContentValue)),
-                        FilePath = displayContent.ContentValue
-                    };
-                    window.PlayContent(mediaItem);
-                    display.Status = "Воспроизведение медиа";
+        private void ApplySimpleContent(ContentToDisplay window, Display display, DisplayContent displayContent)
+        {
+            var contentType = displayContent.ContentType?.ToLower();
+            var contentValue = displayContent.ContentValue;
+
+            if (string.IsNullOrEmpty(contentValue))
+            {
+                display.Status = "Ошибка: контент не указан";
+                return;
+            }
+
+            var playlistItem = new PlaylistItem
+            {
+                FilePath = contentValue,
+                Duration = displayContent.DisplayDuration ?? 0
+            };
+
+            switch (contentType)
+            {
+                case "video":
+                case "image":
+                    playlistItem.Type = contentType;
+                    window.PlayContent(playlistItem);
+                    display.Status = $"Воспроизведение {(contentType)}";
                     break;
 
-                case "Веб-страница":
-                    window.PlayContent(new ContentItem { Type = "web", FilePath = displayContent.ContentValue });
+                case "web":
+                    playlistItem.Type = "web";
+                    window.PlayContent(playlistItem);
                     display.Status = "Открыта веб-страница";
+                    break;
+
+                case "audio":
+                    playlistItem.Type = "video"; // Аудио воспроизводим как видео
+                    window.PlayContent(playlistItem);
+                    display.Status = "Воспроизведение аудио";
+                    break;
+
+                default:
+                    // Автоопределение типа по расширению файла
+                    var detectedType = GetMediaType(Path.GetExtension(contentValue));
+                    playlistItem.Type = detectedType;
+                    window.PlayContent(playlistItem);
+                    display.Status = $"Воспроизведение {detectedType}";
                     break;
             }
         }

@@ -25,7 +25,7 @@ namespace TV.Windows
         private DispatcherTimer _contentTimer;
 
         private Playlist _currentPlaylist;
-        private ContentItem _currentItem;
+        private PlaylistItem _currentItem;
         public event Action PlaylistEnded;
 
         private int _currentIndex = 0;
@@ -152,7 +152,7 @@ namespace TV.Windows
             PlayContent(_currentItem);
         }
 
-        public void PlayContent(ContentItem content)
+        public void PlayContent(PlaylistItem content)
         {
             StopPlayback();
 
@@ -177,10 +177,7 @@ namespace TV.Windows
                         break;
                 }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ошибка в PlayContent: {ex.Message}");
-            }
+            catch {}
         }
 
         private void NextItem()
@@ -197,7 +194,7 @@ namespace TV.Windows
             PlayCurrentItem();
         }
 
-        private void PlayVideoContent(ContentItem content)
+        private void PlayVideoContent(PlaylistItem content)
         {
             try
             {
@@ -205,14 +202,13 @@ namespace TV.Windows
                 _mediaElement.Visibility = Visibility.Visible;
                 _mediaElement.Play();
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine($"Ошибка воспроизведения видео: {ex.Message}");
                 NextItem();
             }
         }
 
-        private void PlayImageContent(ContentItem content)
+        private void PlayImageContent(PlaylistItem content)
         {
             try
             {
@@ -229,33 +225,31 @@ namespace TV.Windows
                 _contentTimer.Interval = TimeSpan.FromSeconds(duration);
                 _contentTimer.Start();
             }
-            catch (Exception ex)
+            catch 
             {
-                Console.WriteLine($"Ошибка загрузки изображения: {ex.Message}");
                 NextItem();
             }
         }
 
-        private async void PlayWebContent(ContentItem content)
+        private async void PlayWebContent(PlaylistItem content)
         {
             try
             {
                 string url = NormalizeWebUrl(content.FilePath);
-                Console.WriteLine($"Загружаем: {url}");
 
                 await InitializeWebView2Safe();
 
                 _webView.Visibility = Visibility.Visible;
                 _webView.Source = new Uri(url);
 
-                int duration = content.Duration > 0 ? content.Duration : 15;
-                _contentTimer.Interval = TimeSpan.FromSeconds(duration);
-                _contentTimer.Start();
-
+                if (content.Duration > 0)
+                {
+                    _contentTimer.Interval = TimeSpan.FromSeconds(content.Duration);
+                    _contentTimer.Start();
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка загрузки веб-контента: {ex.Message}");
                 await ShowErrorSafe(ex.Message, content.FilePath);
             }
         }
@@ -313,10 +307,8 @@ namespace TV.Windows
                 _contentTimer.Interval = TimeSpan.FromSeconds(5);
                 _contentTimer.Start();
             }
-            catch (Exception innerEx)
+            catch 
             {
-                Console.WriteLine($"Критическая ошибка показа страницы ошибки: {innerEx.Message}");
-
                 _webView.Visibility = Visibility.Visible;
                 _contentTimer.Interval = TimeSpan.FromSeconds(5);
                 _contentTimer.Start();

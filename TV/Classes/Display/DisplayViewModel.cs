@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace TV.Classes
 {
-    public class MainViewModel: INotifyPropertyChanged
+    public class DisplayViewModel: INotifyPropertyChanged
     {
         public ObservableCollection<Display.Display> Displays { get; } = new ObservableCollection<Display.Display>();
 
@@ -19,7 +19,7 @@ namespace TV.Classes
             }
         }
 
-        public MainViewModel()
+        public DisplayViewModel()
         {
             Displays.CollectionChanged += Displays_CollectionChanged;
         }

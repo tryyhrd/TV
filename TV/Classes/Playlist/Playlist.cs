@@ -10,7 +10,7 @@ namespace TV.Classes
         public string Name { get; set; }
         public bool IsActive { get; set; } = false;
         public string Description { get; set; }
-        public List<ContentItem> Items { get; set; } = new List<ContentItem>();
+        public List<PlaylistItem> Items { get; set; } = new List<PlaylistItem>();
 
         public int ItemCount => Items?.Count ?? 0;
 

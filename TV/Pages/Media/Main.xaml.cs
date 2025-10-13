@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -65,10 +67,6 @@ namespace TV.Pages.Media
                 playlistDescriptionText.Text = "Описание не указано";
                 playlistDescriptionText.Foreground = new SolidColorBrush(Color.FromRgb(156, 163, 175));
             }
-
-            //var connection = new Classes.Common.Connection();
-            //var items = await connection.GetPlaylistItemsAsync(selectedPlaylist.Id);
-            //if (items != null)
 
             playlistContentGrid.ItemsSource = selectedPlaylist.Items;
         }
@@ -170,9 +168,57 @@ namespace TV.Pages.Media
         }
 
 
-        private void RemoveItem(object sender, RoutedEventArgs e)
+        private async void RemoveItem(object sender, RoutedEventArgs e)
         {
+            if (sender is Button button && button.Tag is int itemId)
+            {
+                try
+                {
+                    int playlistId = selectedPlaylist?.Id ?? 0;
+                    if (playlistId == 0)
+                    {
+                        MessageBox.Show("Не выбран плейлист");
+                        return;
+                    }
 
+                    var result = MessageBox.Show(
+                        "Вы уверены, что хотите удалить этот элемент из плейлиста?",
+                        "Подтверждение удаления",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+
+                    if (result != MessageBoxResult.Yes)
+                        return;
+
+                    var connection = new Classes.Common.Connection();
+                    await connection.DeletePlaylistItemAsync(itemId);
+
+                    await RefreshPlaylistData(playlistId);
+                }
+                catch  { }
+            }
+        }
+
+        private async Task RefreshPlaylistData(int playlistId)
+        {
+            try
+            {
+                await viewModel.LoadPlaylistsAsync();
+
+                var updatedPlaylist = viewModel.Playlists.FirstOrDefault(p => p.Id == playlistId);
+                if (updatedPlaylist != null)
+                {
+                    selectedPlaylist = updatedPlaylist;
+
+                    playlistsListView.SelectedItem = selectedPlaylist;
+
+                    playlistContentGrid.ItemsSource = selectedPlaylist.Items;
+                    playlistContentGrid.Items.Refresh();
+
+                    currentPlaylistInfo.Text = $"{selectedPlaylist.ItemCount} элементов • {selectedPlaylist.Duration}";
+                }
+            }
+            catch {}
         }
 
         private void AddWebContent(object sender, RoutedEventArgs e)
