@@ -11,6 +11,8 @@ using System.Windows.Forms;
 using Microsoft.Web.WebView2.Wpf;
 using TV.Classes;
 using TV.Classes.Display;
+using Microsoft.Web.WebView2.Core;
+using System.IO;
 
 namespace TV.Windows
 {
@@ -177,7 +179,7 @@ namespace TV.Windows
                         break;
                 }
             }
-            catch {}
+            catch { }
         }
 
         private void NextItem()
@@ -225,7 +227,7 @@ namespace TV.Windows
                 _contentTimer.Interval = TimeSpan.FromSeconds(duration);
                 _contentTimer.Start();
             }
-            catch 
+            catch
             {
                 NextItem();
             }
@@ -248,83 +250,30 @@ namespace TV.Windows
                     _contentTimer.Start();
                 }
             }
-            catch (Exception ex)
-            {
-                await ShowErrorSafe(ex.Message, content.FilePath);
-            }
+            catch { }
         }
-        private async Task ShowErrorSafe(string errorMessage, string url)
-        {
-            try
-            {
-                if (_webView.CoreWebView2 == null)
-                {
-                    await _webView.EnsureCoreWebView2Async();
-                }
 
-                string errorHtml = $@"
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset='utf-8'>
-                <style>
-                    body {{
-                        background: white;
-                        margin: 0;
-                        padding: 40px;
-                        font-family: Arial, sans-serif;
-                        color: #333;
-                    }}
-                    .error-container {{
-                        max-width: 600px;
-                        margin: 0 auto;
-                        padding: 20px;
-                        border: 2px solid #dc3545;
-                        border-radius: 10px;
-                        background: #f8f9fa;
-                    }}
-                    .error-icon {{
-                        font-size: 48px;
-                        text-align: center;
-                        margin-bottom: 20px;
-                    }}
-                </style>
-            </head>
-            <body>
-                <div class='error-container'>
-                    <div class='error-icon'>⚠️</div>
-                    <h2>Ошибка загрузки страницы</h2>
-                    <p><strong>Сообщение:</strong> {errorMessage}</p>
-                    <p><strong>URL:</strong> {url}</p>
-                    <p><em>Страница автоматически закроется через 5 секунд</em></p>
-                </div>
-            </body>
-            </html>";
-
-                _webView.NavigateToString(errorHtml);
-                _webView.Visibility = Visibility.Visible;
-
-                _contentTimer.Interval = TimeSpan.FromSeconds(5);
-                _contentTimer.Start();
-            }
-            catch 
-            {
-                _webView.Visibility = Visibility.Visible;
-                _contentTimer.Interval = TimeSpan.FromSeconds(5);
-                _contentTimer.Start();
-            }
-        }
 
         private async Task InitializeWebView2Safe()
         {
             if (_webView.CoreWebView2 == null)
             {
-                await _webView.EnsureCoreWebView2Async();
+                string tempCachePath = Path.Combine(Path.GetTempPath(), "TV_WebView2_Cache");
+
+                var environment = await CoreWebView2Environment.CreateAsync(
+                    browserExecutableFolder: null,
+                    userDataFolder: tempCachePath,
+                    options: new CoreWebView2EnvironmentOptions()
+                );
+
+                await _webView.EnsureCoreWebView2Async(environment);
 
                 if (_webView.CoreWebView2 != null)
                 {
                     _webView.CoreWebView2.Settings.AreDevToolsEnabled = false;
                     _webView.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+
+                    await _webView.CoreWebView2.Profile.ClearBrowsingDataAsync();
                 }
             }
         }
@@ -371,4 +320,3 @@ namespace TV.Windows
         }
     }
 }
-    

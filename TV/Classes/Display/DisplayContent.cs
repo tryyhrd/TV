@@ -101,39 +101,39 @@ namespace TV.Classes.Display
                 await connection.OpenAsync();
 
                 var query = @"SELECT 
-                dc.Id,
-                dc.DisplayId,
-                dc.ContentMode,
-                dc.ContentType,
-                dc.ContentValue,
-                dc.PlaylistId,
-                dc.ScheduleId,
-                dc.Name,
-                dc.DisplayDuration,
-                dc.StartDateTime,
-                dc.EndDateTime,
-                dc.IsLoop,
-                dc.Priority,
-                dc.IsActive,
-                p.Id as PlaylistTableId,
-                p.Name as PlaylistName,
-                p.Description as PlaylistDescription,
-                p.IsActive as PlaylistIsActive,
-                p.TotalDuration as PlaylistTotalDuration,
-                s.Id as ScheduleTableId,
-                s.Name as ScheduleName,
-                s.ScheduleType,
-                s.StartTime,
-                s.EndTime,
-                s.DaysOfWeek,
-                s.IsActive as ScheduleIsActive
-              FROM DisplayContent dc
-              LEFT JOIN Playlists p ON dc.PlaylistId = p.Id
-              LEFT JOIN Schedules s ON dc.ScheduleId = s.Id
-              WHERE dc.DisplayId = @DisplayId 
-              AND dc.IsActive = 1
-              ORDER BY dc.Priority DESC 
-              LIMIT 1";
+                            dc.Id,
+                            dc.DisplayId,
+                            dc.ContentMode,
+                            dc.ContentType,
+                            dc.ContentValue,
+                            dc.PlaylistId,
+                            dc.ScheduleId,
+                            dc.Name,
+                            dc.DisplayDuration,
+                            dc.StartDateTime,
+                            dc.EndDateTime,
+                            dc.IsLoop,
+                            dc.Priority,
+                            dc.IsActive,
+                            p.Id as PlaylistTableId,
+                            p.Name as PlaylistName,
+                            p.Description as PlaylistDescription,
+                            p.IsActive as PlaylistIsActive,
+                            p.TotalDuration as PlaylistTotalDuration,
+                            s.Id as ScheduleTableId,
+                            s.Name as ScheduleName,
+                            s.ScheduleType,
+                            s.StartTime,
+                            s.EndTime,
+                            s.DaysOfWeek,
+                            s.IsActive as ScheduleIsActive
+                            FROM DisplayContent dc
+                            LEFT JOIN Playlists p ON dc.PlaylistId = p.Id
+                            LEFT JOIN Schedules s ON dc.ScheduleId = s.Id
+                            WHERE dc.DisplayId = @DisplayId 
+                            AND dc.IsActive = 1
+                            ORDER BY dc.Priority DESC 
+                            LIMIT 1";
 
                 var command = new MySqlCommand(query, connection);
                 command.Parameters.AddWithValue("@DisplayId", displayId);
@@ -142,7 +142,6 @@ namespace TV.Classes.Display
                 {
                     if (await reader.ReadAsync())
                     {
-                        // Получаем индексы колонок один раз
                         var ordinals = new
                         {
                             Id = reader.GetOrdinal("Id"),
@@ -184,7 +183,6 @@ namespace TV.Classes.Display
                             IsActive = reader.GetBoolean(ordinals.IsActive)
                         };
 
-                        // DisplayDuration (nullable) - явное приведение
                         if (reader.IsDBNull(ordinals.DisplayDuration))
                         {
                             displayContent.DisplayDuration = null;
@@ -194,7 +192,6 @@ namespace TV.Classes.Display
                             displayContent.DisplayDuration = reader.GetInt32(ordinals.DisplayDuration);
                         }
 
-                        // StartDateTime (nullable) - явное приведение
                         if (reader.IsDBNull(ordinals.StartDateTime))
                         {
                             displayContent.StartDateTime = null;
@@ -204,7 +201,6 @@ namespace TV.Classes.Display
                             displayContent.StartDateTime = reader.GetDateTime(ordinals.StartDateTime);
                         }
 
-                        // EndDateTime (nullable) - явное приведение
                         if (reader.IsDBNull(ordinals.EndDateTime))
                         {
                             displayContent.EndDateTime = null;
@@ -214,7 +210,6 @@ namespace TV.Classes.Display
                             displayContent.EndDateTime = reader.GetDateTime(ordinals.EndDateTime);
                         }
 
-                        // ContentType и ContentValue для SIMPLE режима
                         if (!reader.IsDBNull(ordinals.ContentType))
                         {
                             displayContent.ContentType = reader.GetString(ordinals.ContentType);
@@ -262,13 +257,11 @@ namespace TV.Classes.Display
                                 schedule.DaysOfWeek = reader.GetString(ordinals.DaysOfWeek);
                             }
 
-                            // StartTime (nullable)
                             if (!reader.IsDBNull(ordinals.StartTime))
                             {
                                 schedule.StartTime = reader.GetTimeSpan(ordinals.StartTime);
                             }
 
-                            // EndTime (nullable)
                             if (!reader.IsDBNull(ordinals.EndTime))
                             {
                                 schedule.EndTime = reader.GetTimeSpan(ordinals.EndTime);

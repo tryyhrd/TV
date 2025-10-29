@@ -21,18 +21,18 @@
         <!-- Заголовок и кнопки управления -->
         <Border Grid.Row="0" Style="{StaticResource CardStyle}" Background="#F8FAFC" BorderBrush="#E2E8F0" Margin="0,0,0,10">
             <Grid>
-                <TextBlock Text="📅 Управление расписаниями" 
+                <TextBlock Text="Управление расписаниями" 
                           Style="{StaticResource PageHeaderStyle}"
                           Foreground="#1E293B"/>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,0,0,0">
-                    <Button Content="➕ Создать расписание" Click="CreateSchedule" 
+                    <Button Content="Создать расписание" Click="CreateSchedule" 
                             Style="{StaticResource ModernButton}" 
                             Background="#065F46"
                             Foreground="White"
                             BorderThickness="0"
                             Padding="12,6"/>
-                    <Button Content="🗑️ Удалить расписание" Click="DeleteSelectedSchedule" 
+                    <Button Content="Удалить расписание" Click="DeleteSelectedSchedule" 
                             Style="{StaticResource ModernButton}" 
                             Background="#991B1B" 
                             Foreground="White"
@@ -63,7 +63,7 @@
 
                     <Border Grid.Row="0" Background="#F8FAFC" Padding="12,10" 
                             CornerRadius="8,8,0,0" BorderThickness="0,0,0,1" BorderBrush="#E2E8F0">
-                        <TextBlock Text="📋 Мои расписания" FontWeight="SemiBold" Foreground="#374151"/>
+                        <TextBlock Text="Мои расписания" FontWeight="SemiBold" Foreground="#374151"/>
                     </Border>
 
                     <ListView Grid.Row="1" x:Name="schedulesListView" 

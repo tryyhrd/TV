@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 
 namespace TV.Classes.Display
@@ -16,7 +17,6 @@ namespace TV.Classes.Display
         private bool _isSelected;
         private string _currentContent = "Нет";
         private string _contentType = "Нет";
-
         public bool IsSelected
         {
             get => _isSelected;
@@ -50,7 +50,7 @@ namespace TV.Classes.Display
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected virtual void OnPropertyChanged(string propertyName)
+        public virtual void OnPropertyChanged([CallerMemberName]string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

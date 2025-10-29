@@ -58,7 +58,6 @@ namespace TV.Classes.Common
                 {
                     while (await reader.ReadAsync())
                     {
-                        // Получаем индексы колонок
                         var ordinals = new
                         {
                             Id = reader.GetOrdinal("Id"),

@@ -53,7 +53,7 @@ namespace TV.Pages
         private async Task DetectDisplays()
         {
             viewModel.Displays.Clear();
-            
+
             var screens = Screen.AllScreens;
 
             for (int i = 0; i < screens.Length; i++)
@@ -141,10 +141,10 @@ namespace TV.Pages
                     }
                 }
             }
-            catch 
+            catch
             {
                 return;
-            }          
+            }
         }
 
         private void ContentType_Changed(object sender, SelectionChangedEventArgs e)
@@ -177,7 +177,7 @@ namespace TV.Pages
             {
                 Filter = "Все поддерживаемые форматы|*.mp4;*.avi;*.mov;*.wmv;*.mkv;*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.webp;|" +
                 "Изображения|*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.webp;*.tiff;*.svg|" +
-                "Видео файлы|*.mp4;*.avi;*.mov;*.wmv;*.mkv;*.flv;*.webm;*.m4v|" +               
+                "Видео файлы|*.mp4;*.avi;*.mov;*.wmv;*.mkv;*.flv;*.webm;*.m4v|" +
                  "Все файлы|*.*",
                 Title = "Выберите медиафайл",
                 Multiselect = false
@@ -238,7 +238,7 @@ namespace TV.Pages
                         }
 
                         contentMode = "PLAYLIST";
-                        contentType = null; 
+                        contentType = null;
                         displayName = selectedPlaylist.Name;
                         contentValue = null;
                         playlistId = selectedPlaylist.Id;
@@ -254,7 +254,7 @@ namespace TV.Pages
                                 Name = displayName,
                                 PlaylistId = playlistId,
                                 ScheduleId = null,
-                                DisplayDuration = null, 
+                                DisplayDuration = null,
                                 StartDateTime = null,
                                 EndDateTime = null,
                                 IsLoop = true,
@@ -348,7 +348,7 @@ namespace TV.Pages
                                 Name = displayName,
                                 PlaylistId = null,
                                 ScheduleId = null,
-                                DisplayDuration = 300, 
+                                DisplayDuration = 300,
                                 StartDateTime = null,
                                 EndDateTime = null,
                                 IsLoop = true,
@@ -437,13 +437,12 @@ namespace TV.Pages
                     break;
 
                 case "audio":
-                    playlistItem.Type = "video"; // Аудио воспроизводим как видео
+                    playlistItem.Type = "video";
                     window.PlayContent(playlistItem);
                     display.Status = "Воспроизведение аудио";
                     break;
 
                 default:
-                    // Автоопределение типа по расширению файла
                     var detectedType = GetMediaType(Path.GetExtension(contentValue));
                     playlistItem.Type = detectedType;
                     window.PlayContent(playlistItem);
@@ -598,7 +597,7 @@ namespace TV.Pages
 
                 display.Status = "Остановлен";
 
-                StopDisplayContent(displayId);  
+                StopDisplayContent(displayId);
             }
         }
     }

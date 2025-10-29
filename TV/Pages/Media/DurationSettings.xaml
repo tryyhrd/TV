@@ -1,0 +1,155 @@
+﻿<Page x:Class="TV.Pages.Media.DurationSettings"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:TV.Pages.Media"
+      mc:Ignorable="d" 
+      d:DesignHeight="500" d:DesignWidth="900"
+      Title="DurationSettings">
+
+    <Border Background="White" Padding="15">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <Grid>
+                <Grid.Resources>
+                    <ResourceDictionary Source="/Resources/Dictionary.xaml"/>
+                </Grid.Resources>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Заголовок -->
+                <TextBlock Grid.Row="0" Text="Настройка воспроизведения" 
+                          FontSize="14" FontWeight="Bold" Margin="0,0,0,10"
+                          HorizontalAlignment="Center"/>
+
+                <!-- Информация о файле -->
+                <Border Grid.Row="1" Background="#F8F9FA" Padding="8" CornerRadius="4" Margin="0,0,0,10">
+                    <TextBlock x:Name="fileInfoText" Text="Файл: " FontSize="11" TextWrapping="Wrap"/>
+                </Border>
+
+                <!-- Режим воспроизведения -->
+                <StackPanel Grid.Row="2" Orientation="Vertical" Margin="0,0,0,10">
+                    <TextBlock Text="Режим воспроизведения:" FontWeight="SemiBold" FontSize="11" Margin="0,0,0,5"/>
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton x:Name="finiteDurationRadio" Content="Ограниченное время" 
+                                    FontSize="11" IsChecked="True" GroupName="DurationMode"/>
+                        <RadioButton x:Name="infiniteDurationRadio" Content="Бесконечное" 
+                                    FontSize="11" Margin="10,0,0,0" GroupName="DurationMode"/>
+                        <RadioButton x:Name="scheduledDurationRadio" Content="По расписанию" 
+                                    FontSize="11" Margin="10,0,0,0" GroupName="DurationMode"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Настройки длительности -->
+                <Grid Grid.Row="3" x:Name="durationSettingsPanel" Margin="0,0,0,10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+                        <TextBlock Text="Длительность:" FontSize="11" VerticalAlignment="Center" Margin="0,0,8,0"/>
+
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox x:Name="durationTextBox" Width="50" Height="22" Text="30" FontSize="11"
+                                    VerticalContentAlignment="Center"/>
+                            <ComboBox x:Name="durationUnitCombo" Width="70" Height="22" FontSize="11" Margin="4,0,0,0"
+                                     SelectedIndex="0">
+                                <ComboBoxItem Content="секунд"/>
+                                <ComboBoxItem Content="минут"/>
+                                <ComboBoxItem Content="часов"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <TextBlock Text="(0 = бесконечно)" FontSize="9" Foreground="Gray" 
+                                  VerticalAlignment="Center" Margin="8,0,0,0"/>
+                    </StackPanel>
+
+                    <CheckBox Grid.Row="1" x:Name="loopCheckBox" Content="Зациклить воспроизведение" 
+                             FontSize="10" IsChecked="True" Margin="0,2,0,0"/>
+                </Grid>
+
+                <!-- Настройки периода -->
+                <Border Grid.Row="4" x:Name="periodSettingsPanel" Background="#F0F9FF" Padding="10" 
+                       CornerRadius="4" Margin="0,0,0,10" Visibility="Collapsed">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Text="Период воспроизведения" 
+                                  FontWeight="SemiBold" FontSize="11" Margin="0,0,0,8"/>
+
+                        <!-- Дата и время начала -->
+                        <Grid Grid.Row="1" Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="Начало:" FontSize="11" VerticalAlignment="Center" Margin="0,0,8,0"/>
+
+                            <DatePicker Grid.Column="1" x:Name="startDatePicker" Width="100" Height="22" FontSize="11"/>
+
+                            <TextBox Grid.Column="2" x:Name="startTimeTextBox" Width="50" Height="22" FontSize="11" Margin="8,0,0,0"
+                                    Text="00:00"
+                                    ToolTip="Формат: ЧЧ:MM (24-часовой)"/>
+                        </Grid>
+
+                        <!-- Дата и время окончания -->
+                        <Grid Grid.Row="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="Окончание:" FontSize="11" VerticalAlignment="Center" Margin="0,0,8,0"/>
+
+                            <DatePicker Grid.Column="1" x:Name="endDatePicker" Width="100" Height="22" FontSize="11"/>
+
+                            <TextBox Grid.Column="2" x:Name="endTimeTextBox" Width="50" Height="22" FontSize="11" Margin="8,0,0,0"
+                                    Text="23:59"
+                                    ToolTip="Формат: ЧЧ:MM (24-часовой)"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- Предупреждение для видео -->
+                <Border Grid.Row="5" x:Name="videoWarningPanel" Background="#FFF3CD" BorderBrush="#FFEEBA" 
+                       BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,10" Visibility="Collapsed">
+                    <TextBlock Text="⚠️ Для видео длительность указывает время показа, а не длительность видео. Видео будет зациклено." 
+                              FontSize="10" TextWrapping="Wrap" Foreground="#856404"/>
+                </Border>
+
+                <!-- Сводка выбранных настроек -->
+                <Border Grid.Row="6" x:Name="summaryPanel" Background="#F0F9FF" BorderBrush="#0EA5E9" 
+                       BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,10">
+                    <TextBlock x:Name="summaryText" Text="Сводка настроек..." FontSize="10" TextWrapping="Wrap"/>
+                </Border>
+
+                <!-- Кнопки -->
+                <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Отмена" 
+                            Style="{StaticResource ModernButton}" 
+                            Background="#6B7280" MinWidth="70" Height="26" FontSize="11"/>
+                    <Button Content="Применить" 
+                            Click="Apply_Click"
+                            Style="{StaticResource ModernButton}" 
+                            Background="#065F46" MinWidth="70" Height="26" FontSize="11" Margin="8,0,0,0"/>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+    </Border>
+</Page>

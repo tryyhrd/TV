@@ -24,7 +24,7 @@ namespace TV
             => mainFrame.Navigate(new Pages.Media.Main());
 
         private void NavigateToSchedules(object sender, RoutedEventArgs e)
-            => mainFrame.Navigate(new Pages.Schedule());
+            => mainFrame.Navigate(new Pages.Schedules.Main());
     }
 }
     

@@ -22,11 +22,11 @@
 
         <Border Grid.Row="0" Style="{StaticResource CardStyle}">
             <StackPanel Orientation="Horizontal">
-                <Button Content="🔄 Обнаружить дисплеи" Click="DetectDisplays" 
+                <Button Content="Обнаружить дисплеи" Click="DetectDisplays" 
                         Style="{StaticResource ModernButton}" Background="#374151"/>
-                <Button Content="▶️ Запустить выбранные" Click="StartAll" 
+                <Button Content="Запустить выбранные" Click="StartAll" 
                         Style="{StaticResource ModernButton}" Background="#065F46"/>
-                <Button Content="⏹️ Остановить выбранные" Click="StopAll" 
+                <Button Content="Остановить выбранные" Click="StopAll" 
                         Style="{StaticResource ModernButton}" Background="#991B1B"/>
             </StackPanel>
         </Border>
@@ -50,9 +50,9 @@
                 <ComboBox Grid.Column="1" Grid.Row="0" x:Name="contentTypeCombo" 
                           VerticalAlignment="Center" VerticalContentAlignment="Center" Height="28" FontSize="13"
                           SelectionChanged="ContentType_Changed">
-                    <ComboBoxItem Content="📋 Плейлист"/>
-                    <ComboBoxItem Content="🎬 Медиафайл"/>
-                    <ComboBoxItem Content="🌐 Веб-страница"/>
+                    <ComboBoxItem Content="Плейлист"/>
+                    <ComboBoxItem Content="Медиафайл"/>
+                    <ComboBoxItem Content="Веб-страница"/>
                 </ComboBox>
 
                 <StackPanel Grid.Column="2" Grid.Row="0" x:Name="playlistPanel" Orientation="Horizontal" 
